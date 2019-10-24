@@ -105,3 +105,7 @@ venv.bak/
 
 Data
 *.pdf
+
+# emacs
+*~
+*#
