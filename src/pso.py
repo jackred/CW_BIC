@@ -9,7 +9,7 @@
 
 import math
 import random
-from copy import deepcopyA
+from copy import deepcopy
 
 INERTIA = 0.7
 COGNITIVE_WEIGHT = 1.47
