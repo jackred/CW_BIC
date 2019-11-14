@@ -35,7 +35,7 @@ class Layer:
         self.activation = activation
 
 
-class Input_Layer(Layer):
+class InputLayer(Layer):
     def __init__(self, nb_neurons):
         self.neurons = [0] * nb_neurons
         self.length = nb_neurons
@@ -56,7 +56,7 @@ class ANN:
                 'Numbers of neurons should match numbers of layers')
         self.layers = [Layer(nb_neurons[i], bias[i-1], activations[i-1])
                        for i in range(1, nb_layers)]
-        self.layers.insert(0, Input_Layer(nb_neurons[0]))
+        self.layers.insert(0, InputLayer(nb_neurons[0]))
         self.connections = [Connection(self.layers[i],
                                        self.layers[i+1],
                                        weight)
