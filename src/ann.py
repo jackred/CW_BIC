@@ -7,15 +7,17 @@
 # author: JackRed <jackred@tuta.io>,
 # Timothée Couble
 
-from ann_help import default_activation, default_weights
+from ann_help import default_activation
 
 
 class Connection:
-    def __init__(self, layer1, layer2, weight=default_weights):
+    def __init__(self, layer1, layer2, weights):
         self.layer1 = layer1
         self.layer2 = layer2
-        self.weights = [[weight() for j in range(layer2.length)]
-                        for i in range(layer1.length)]
+        self.weights = weights
+
+    def update_weights(self, weights):
+        self.weights = weights
 
     def compute_layers(self):
         for i in range(self.layer2.length):
@@ -42,8 +44,8 @@ class InputLayer(Layer):
 
 
 class ANN:
-    def __init__(self, nb_neurons, nb_layers, bias=[],
-                 activations=[], weight=default_weights):
+    def __init__(self, nb_neurons, nb_layers, weights, bias=[],
+                 activations=[]):
         bias = bias if len(bias) == nb_layers-1 else [0] * (nb_layers-1)
         activations = activations if len(activations) == nb_layers-1 \
             else [default_activation] * (nb_layers-1)
@@ -59,7 +61,7 @@ class ANN:
         self.layers.insert(0, InputLayer(nb_neurons[0]))
         self.connections = [Connection(self.layers[i],
                                        self.layers[i+1],
-                                       weight)
+                                       weights[i])
                             for i in range(nb_layers - 1)]
 
     def activation(self, input_nodes):
@@ -67,3 +69,17 @@ class ANN:
         for connection in self.connections:
             connection.compute_layers()
         return self.layers[-1].neurons
+
+    def update_weights(self, weights):
+        weights = self.format_weights(weights)
+        for i in range(len(self.connections)):
+            self.connections.update_weights(weights[i])
+
+    def format_weights(self, weights):
+        res = []
+        j = 0
+        for i in range(len(self.layers)):
+            nb_neurons_i = len(self.layers[i].neurons)
+            res.append(weights[j:j+nb_neurons_i])
+            j += nb_neurons_i
+        return res
