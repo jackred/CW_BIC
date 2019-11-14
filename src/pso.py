@@ -9,14 +9,11 @@
 
 import math
 import random
-from copy import deepcopy
-
-# Best actual position from 3 closest neighbour
+from copy import deepcopyA
 
 INERTIA = 0.7
 COGNITIVE_WEIGHT = 1.47
 SOCIAL_WEIGHT = 1.47
-JUMP_SIZE = 0.5
 
 def minimise(a, b):
     return a < b
@@ -39,7 +36,7 @@ class Particle:
     def evaluate(self, fitness_function):
         self.score = fitness_function(self.position)
 
-    def get_particle_position(self):
+    def get_best_informant_position(self):
         best_score = float("inf") if self.comparator(0, 1) else -float("inf")
         best_position = []
         for particle in self.informants:
@@ -48,21 +45,16 @@ class Particle:
                 best_position = deepcopy(particle.position)
         return best_position
 
-    def calculate_velocity(self, i):
-        best_informant_position = self.get_particle_position()
-        return (
-            INERTIA * self.velocity[i]
-            + random.uniform(0, 1) * COGNITIVE_WEIGHT
-            * (self.best_position[i] - self.position[i])
-            + random.uniform(0, 1) * SOCIAL_WEIGHT
-            * (best_informant_position[i] - self.position[i])
-        )
-
     def update_velocity(self):
-        new_velocity = []
+        best_informant_position = self.get_best_informant_position()
         for i in range(self.dimension):
-            new_velocity.append(self.calculate_velocity(i))
-        self.velocity = new_velocity
+            self.velocity[i] = (
+                INERTIA * self.velocity[i]
+                + random.uniform(0, 1) * COGNITIVE_WEIGHT
+                * (self.best_position[i] - self.position[i])
+                + random.uniform(0, 1) * SOCIAL_WEIGHT
+                * (best_informant_position[i] - self.position[i])
+            )
 
     def update_best_position(self):
         if self.comparator(self.score, self.best_score):
@@ -71,15 +63,14 @@ class Particle:
 
     def move(self, min_bound, max_bound):
         for i in range(self.dimension):
-            self.position[i] = self.position[i] + self.velocity[i]
-            self.position[i] = min(max_bound, self.position[i])
-            self.position[i] = max(min_bound, self.position[i])
+            self.position[i] = max(min_bound, min(max_bound,
+                                      self.position[i] + self.velocity[i]))
 
 
 
 class PSO:
     def __init__(self, dimension, fitness_function, max_iter,
-                 comparator=maximise):
+                 comparator=maximise, min_bound=-10, max_bound=10):
         if dimension <= 0:
             raise ValueError('The vector dimension should be greater than 0')
         self.dimension = dimension
@@ -88,8 +79,8 @@ class PSO:
             raise ValueError('The max iteration should be greater than 0')
         self.max_iter = max_iter
         self.comparator = comparator
-        self.max_bound = 10
-        self.min_bound = -5
+        self.max_bound = max_bound
+        self.min_bound = min_bound
         particle_nb = 10 + int(math.sqrt(dimension))
         self.particles = [
             Particle(dimension, self.generate_position(), comparator)
@@ -147,7 +138,7 @@ class Rosenbrock:
 
 if __name__ == '__main__':
     rosenbrock = Rosenbrock(2)
-    pso = PSO(2, rosenbrock.evaluate, 2000, minimise)
+    pso = PSO(2, rosenbrock.evaluate, 2000, minimise, min_bound=-5)
     print(pso.run())
 
 
