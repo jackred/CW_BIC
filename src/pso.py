@@ -84,7 +84,7 @@ class PSO:
         self.comparator = comparator
         self.max_bound = max_bound
         self.min_bound = min_bound
-        particle_nb = 10 + int(math.sqrt(dimension))
+        particle_nb = 40
         self.particles = [
             Particle(dimension, self.generate_position(), comparator)
             for _ in range(particle_nb)
@@ -106,6 +106,7 @@ class PSO:
         best_score = float("inf") if self.comparator(0, 1) else -float("inf")
         best_position = []
         for i in range(self.max_iter):
+            print(i)
             for particle in self.particles:
                 if self.comparator(particle.score, best_score):
                     best_score = particle.score
@@ -116,31 +117,3 @@ class PSO:
                 particle.evaluate(self.fitness_function)
                 particle.update_best_position()
         return best_score, best_position
-
-
-class Rosenbrock:
-    def __init__(self, dimension):
-        self.max_bound = 10
-        self.min_bound = -5
-        self.dimension = dimension
-
-    def generate_random(self):
-        return [random.uniform(self.min_bound, self.max_bound)
-                for _ in range(self.dimension)]
-
-    def evaluate(self, xx):
-        d = len(xx)
-        int_sum = 0
-        for i in range(d-1):
-            xi = xx[i]
-            xnext = xx[i+1]
-            new = 100*(xnext-xi**2)**2 + (xi-1)**2
-            int_sum = int_sum + new
-        y = int_sum
-        return y
-
-
-if __name__ == '__main__':
-    rosenbrock = Rosenbrock(2)
-    pso = PSO(2, rosenbrock.evaluate, 1000, minimise, min_bound=-5)
-    print(pso.run())

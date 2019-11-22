@@ -11,10 +11,10 @@ from ann_help import default_activation
 
 
 class Connection:
-    def __init__(self, layer1, layer2, weights):
+    def __init__(self, layer1, layer2,):
         self.layer1 = layer1
         self.layer2 = layer2
-        self.weights = weights
+        self.weights = []
 
     def update_weights(self, weights):
         self.weights = weights
@@ -44,7 +44,7 @@ class InputLayer(Layer):
 
 
 class ANN:
-    def __init__(self, nb_neurons, nb_layers, weights, bias=[],
+    def __init__(self, nb_neurons, nb_layers, bias=[],
                  activations=[]):
         bias = bias if len(bias) == nb_layers-1 else [0] * (nb_layers-1)
         activations = activations if len(activations) == nb_layers-1 \
@@ -60,8 +60,7 @@ class ANN:
                        for i in range(1, nb_layers)]
         self.layers.insert(0, InputLayer(nb_neurons[0]))
         self.connections = [Connection(self.layers[i],
-                                       self.layers[i+1],
-                                       weights[i])
+                                       self.layers[i+1])
                             for i in range(nb_layers - 1)]
 
     def activation(self, input_nodes):
@@ -73,13 +72,16 @@ class ANN:
     def update_weights(self, weights):
         weights = self.format_weights(weights)
         for i in range(len(self.connections)):
-            self.connections.update_weights(weights[i])
+            self.connections[i].update_weights(weights[i])
 
     def format_weights(self, weights):
         res = []
         j = 0
-        for i in range(len(self.layers)):
-            nb_neurons_i = len(self.layers[i].neurons)
-            res.append(weights[j:j+nb_neurons_i])
-            j += nb_neurons_i
+        for i in range(len(self.layers) - 1):
+            tmp = []
+            for k in range(len(self.layers[i].neurons)):
+                nb_neurons_i = len(self.layers[i+1].neurons)
+                tmp.append(weights[j:j+nb_neurons_i])
+                j += nb_neurons_i
+            res.append(tmp)
         return res
