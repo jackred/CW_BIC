@@ -12,7 +12,7 @@ from math import exp, tanh, cos, atan
 
 
 def default_activation(x):
-    return atan(x)
+    return tanh(x)
 
 
 def heaviside(x):

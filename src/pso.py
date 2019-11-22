@@ -84,6 +84,8 @@ class PSO:
         self.comparator = comparator
         self.max_bound = max_bound
         self.min_bound = min_bound
+        self.average_mean_square_error = []
+        self.best_mean_square_error = []
         particle_nb = 40
         self.particles = [
             Particle(dimension, self.generate_position(), comparator)
@@ -107,10 +109,16 @@ class PSO:
         best_position = []
         for i in range(self.max_iter):
             print('%d / %d' % (i, self.max_iter), end="\r")
+            best_local_score = self.particles[0].score
             for particle in self.particles:
                 if self.comparator(particle.score, best_score):
                     best_score = particle.score
                     best_position = deepcopy(particle.position)
+                if self.comparator(particle.score, best_local_score):
+                    best_local_score = particle.score
+            self.best_mean_square_error.append(best_local_score)
+            self.average_mean_square_error.append(
+                sum(x.score for x in self.particles) / len(self.particles))
             for particle in self.particles:
                 particle.update_velocity()
                 particle.move(self.min_bound, self.max_bound)
