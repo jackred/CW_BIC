@@ -7,7 +7,6 @@
 # author: JackRed <jackred@tuta.io>
 # Timothée Couble
 
-import math
 import random
 from copy import deepcopy
 
@@ -30,17 +29,18 @@ class Particle:
         self.dimension = dimension
         self.comparator = comparator
         self.score = 0
+        self.default_score = float("inf") if self.comparator(0, 1) \
+            else -float("inf")
         self.velocity = [0 for _ in range(dimension)]
         self.informants = []
-        self.best_score = float("inf") if self.comparator(0, 1) \
-            else -float("inf")
+        self.best_score = self.default_score
         self.best_position = self.position
 
     def evaluate(self, fitness_function):
         self.score = fitness_function(self.position)
 
     def get_best_informant_position(self):
-        best_score = float("inf") if self.comparator(0, 1) else -float("inf")
+        best_score = self.default_score
         best_position = []
         for particle in self.informants:
             if self.comparator(particle.best_score, best_score):

@@ -8,11 +8,11 @@
 # Timothée Couble
 
 from random import random
-from math import exp, tanh
+from math import exp, tanh, cos, atan
 
 
 def default_activation(x):
-    return tanh(x)
+    return atan(x)
 
 
 def heaviside(x):
@@ -21,3 +21,6 @@ def heaviside(x):
 
 def sigmoid(x):
     return 1 / (1 + exp(-x))
+
+def gaussian(x):
+    return exp(-pow(x, 2) / 2)

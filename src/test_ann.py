@@ -22,8 +22,8 @@ def read_input(name):
         res_ex = []
         for i in f:
             tmp = ([float(j) for j in i.split()])
-            inputs.append([tmp[0]])
-            res_ex.append(tmp[1])
+            inputs.append([x for x in tmp[:-1]])
+            res_ex.append(tmp[-1])
     return inputs, res_ex
 
 
@@ -37,16 +37,22 @@ def active(weights, ann, inputs, res_ex):
 
 
 if __name__ == '__main__':
-    inputs, res_ex = read_input('../Data/1in_cubic.txt')
-    ann = ANN(nb_neurons=[1, 4, 1], nb_layers=3)
-    pso = PSO(8, lambda weigths: active(weigths, ann, inputs, res_ex)[0],
-              200, minimise, min_bound=-10, max_bound=10)
+    inputs, res_ex = read_input('../Data/2in_complex.txt')
+    nb_neurons = [2, 4, 4, 4, 1]
+    ann = ANN(nb_neurons=nb_neurons, nb_layers=len(nb_neurons))
+    dim = sum(nb_neurons[i] * nb_neurons[i+1] for i in range(len(nb_neurons)-1))
+    pso = PSO(dim, lambda weigths: active(weigths, ann, inputs, res_ex)[0],
+              400, minimise, min_bound=-10, max_bound=10)
     score, position = pso.run()
     bscore, res = active(position, ann, inputs, res_ex)
     for i in range(len(res)):
         print(res[i], '->', res_ex[i])
     print(score, bscore)
     print(position)
-    plt.plot(list(range(len(res_ex))), res)
-    plt.plot(list(range(len(res_ex))), res_ex)
+    fig, ax = plt.subplots()
+    ax.plot([f"{i}: {inputs[i]}" for i in range(len(inputs))], res, label='Result')
+    ax.plot([f"{i}: {inputs[i]}" for i in range(len(inputs))], res_ex, label='Target', linestyle='--')
+    ax.tick_params(axis='x', labelrotation=70, width=0.5)
+    ax.xaxis.set_ticks(range(0, len(inputs), 3))
+    leg = ax.legend()
     plt.show()
