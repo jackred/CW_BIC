@@ -27,8 +27,8 @@ def read_input(name):
     return inputs, res_ex
 
 
-def active(weights, ann, inputs, res_ex):
-    ann.update_weights(weights)
+def active(params, ann, inputs, res_ex):
+    ann.update_params(params)
     res = []
     for i in range(len(inputs)):
         estimation = ann.activation(inputs[i])
@@ -38,11 +38,12 @@ def active(weights, ann, inputs, res_ex):
 
 if __name__ == '__main__':
     inputs, res_ex = read_input('../Data/2in_complex.txt')
-    nb_neurons = [2, 4, 4, 4, 1]
+    nb_neurons = [2, 5, 6,  4, 1]
     ann = ANN(nb_neurons=nb_neurons, nb_layers=len(nb_neurons))
-    dim = sum(nb_neurons[i] * nb_neurons[i+1] for i in range(len(nb_neurons)-1))
-    pso = PSO(dim, lambda weigths: active(weigths, ann, inputs, res_ex)[0],
-              400, minimise, min_bound=-10, max_bound=10)
+    dim = sum(nb_neurons[i] * nb_neurons[i+1]
+              for i in range(len(nb_neurons)-1)) + len(nb_neurons) - 1
+    pso = PSO(dim, lambda params: active(params, ann, inputs, res_ex)[0],
+              500, minimise, min_bound=-5, max_bound=5)
     score, position = pso.run()
     bscore, res = active(position, ann, inputs, res_ex)
     for i in range(len(res)):

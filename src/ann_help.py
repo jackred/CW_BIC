@@ -22,5 +22,6 @@ def heaviside(x):
 def sigmoid(x):
     return 1 / (1 + exp(-x))
 
+
 def gaussian(x):
     return exp(-pow(x, 2) / 2)

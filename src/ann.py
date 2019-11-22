@@ -30,11 +30,11 @@ class Connection:
 
 
 class Layer:
-    def __init__(self, nb_neurons, bias=0, activation=default_activation):
+    def __init__(self, nb_neurons):
         self.neurons = [0] * nb_neurons
-        self.bias = bias
         self.length = nb_neurons
-        self.activation = activation
+        self.bias = 0
+        self.activation = default_activation
 
 
 class InputLayer(Layer):
@@ -44,11 +44,9 @@ class InputLayer(Layer):
 
 
 class ANN:
-    def __init__(self, nb_neurons, nb_layers, bias=[],
-                 activations=[]):
-        bias = bias if len(bias) == nb_layers-1 else [0] * (nb_layers-1)
-        activations = activations if len(activations) == nb_layers-1 \
-            else [default_activation] * (nb_layers-1)
+    def __init__(self, nb_neurons, nb_layers):
+        self.nb_neurons = sum(nb_neurons[i] * nb_neurons[i+1]
+                              for i in range(len(nb_neurons)-1))
         if nb_layers < 0:
             raise ValueError('There should be at least one layer')
         if [i for i in nb_neurons if i <= 0] != []:
@@ -56,8 +54,7 @@ class ANN:
         if len(nb_neurons) != nb_layers:
             raise ValueError(
                 'Numbers of neurons should match numbers of layers')
-        self.layers = [Layer(nb_neurons[i], bias[i-1], activations[i-1])
-                       for i in range(1, nb_layers)]
+        self.layers = [Layer(nb_neurons[i]) for i in range(1, nb_layers)]
         self.layers.insert(0, InputLayer(nb_neurons[0]))
         self.connections = [Connection(self.layers[i],
                                        self.layers[i+1])
@@ -73,6 +70,16 @@ class ANN:
         weights = self.format_weights(weights)
         for i in range(len(self.connections)):
             self.connections[i].update_weights(weights[i])
+
+    def update_bias(self, bias):
+        for i in range(0, len(self.layers)-1):
+            self.layers[i+1].bias = bias[i]
+
+    def update_params(self, params):
+        weights = params[0:self.nb_neurons]
+        bias = params[self.nb_neurons:self.nb_neurons+len(self.layers)-1]
+        self.update_weights(weights)
+        self.update_bias(bias)
 
     def format_weights(self, weights):
         res = []

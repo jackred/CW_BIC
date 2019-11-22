@@ -106,7 +106,7 @@ class PSO:
         best_score = float("inf") if self.comparator(0, 1) else -float("inf")
         best_position = []
         for i in range(self.max_iter):
-            print(i)
+            print('%d / %d' % (i, self.max_iter), end="\r")
             for particle in self.particles:
                 if self.comparator(particle.score, best_score):
                     best_score = particle.score
