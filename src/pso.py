@@ -15,11 +15,14 @@ INERTIA = 0.7
 COGNITIVE_WEIGHT = 1.47
 SOCIAL_WEIGHT = 1.47
 
+
 def minimise(a, b):
-    return a < b
+    return a <= b
+
 
 def maximise(a, b):
-    return a > b
+    return a >= b
+
 
 class Particle:
     def __init__(self, dimension, position, comparator=maximise):
@@ -40,9 +43,9 @@ class Particle:
         best_score = float("inf") if self.comparator(0, 1) else -float("inf")
         best_position = []
         for particle in self.informants:
-            if self.comparator(particle.score, best_score):
-                best_score = particle.score
-                best_position = deepcopy(particle.position)
+            if self.comparator(particle.best_score, best_score):
+                best_score = particle.best_score
+                best_position = deepcopy(particle.best_position)
         return best_position
 
     def update_velocity(self):
@@ -63,9 +66,9 @@ class Particle:
 
     def move(self, min_bound, max_bound):
         for i in range(self.dimension):
-            self.position[i] = max(min_bound, min(max_bound,
-                                      self.position[i] + self.velocity[i]))
-
+            self.position[i] = max(min_bound,
+                                   min(max_bound,
+                                       self.position[i] + self.velocity[i]))
 
 
 class PSO:
@@ -89,11 +92,11 @@ class PSO:
         for particle in self.particles:
             particle.evaluate(fitness_function)
             idx = self.particles.index(particle)
-            # particle.informants.append(self.particles[idx - 1])
-            # particle.informants.append(
-            #    self.particles[(idx + 1) % particle_nb]
-            # )
-            particle.informants = [i for i in self.particles if i != particle]
+            particle.informants.append(self.particles[idx - 1])
+            particle.informants.append(
+               self.particles[(idx + 1) % particle_nb]
+            )
+            # particle.informants = [i for i in self.particles if i != particle]
 
     def generate_position(self):
         return [random.uniform(self.min_bound, self.max_bound)
@@ -136,9 +139,8 @@ class Rosenbrock:
         y = int_sum
         return y
 
+
 if __name__ == '__main__':
     rosenbrock = Rosenbrock(2)
-    pso = PSO(2, rosenbrock.evaluate, 2000, minimise, min_bound=-5)
+    pso = PSO(2, rosenbrock.evaluate, 1000, minimise, min_bound=-5)
     print(pso.run())
-
-
