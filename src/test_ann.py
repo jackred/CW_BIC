@@ -60,14 +60,18 @@ def train_ANN_PSO(inputs, res_ex, n_particle, n_iter, nb_h_layers,
     return pso, ann
 
 
-def graph(pso, ann, res_ex, inputs):
-    _, res = active(pso.best_position, ann, inputs, res_ex)
-    plt.figure(1)
-    plt.subplot(211)
-    plt.title("Mean square error evolution")
+def graph_pso(pso, i, s='PSO'):
+    plt.subplot(i)
+    plt.title(s + ' ' + "Mean square error evolution")
     plt.plot(pso.best_mean_square_error, color='g', label='Best')
     plt.plot(pso.average_mean_square_error, color='c', label='Average')
     plt.legend()
+
+
+def graph(pso, ann, res_ex, inputs, dry=False):
+    _, res = active(pso.best_position, ann, inputs, res_ex)
+    plt.figure(1)
+    graph_pso(pso, 211 if dry else 221)
     plt.subplot(212)
     plt.title("Target output and the ANN output comparaison")
     plt.plot([f"{i}: {inputs[i]}" for i in range(len(inputs))], res,
@@ -77,6 +81,13 @@ def graph(pso, ann, res_ex, inputs):
     plt.tick_params(axis='x', labelrotation=70, width=0.5)
     plt.xticks(range(0, len(inputs), 5))
     plt.legend()
+    if dry:
+        plt.show()
+
+
+def graph_all(opso, pso, ann, res_ex, inputs):
+    graph(pso, ann, res_ex, inputs)
+    graph_pso(opso, 222, 'OPSO')
     plt.show()
 
 
@@ -88,7 +99,8 @@ if __name__ == '__main__':
     activation = ann_help.tanh
     min_bound = -5
     max_bound = 5
-    pso, ann = train_ANN_PSO(inputs, res_ex, 40, nb_h_layers, nb_neurons_layer,
+    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 150, nb_h_layers,
+                             nb_neurons_layer,
                              min_bound, max_bound, 2, 2, 0.9, 0.4, 20,
                              activation)
-    graph(pso, ann, res_ex, inputs)
+    graph(pso, ann, res_ex, inputs, True)

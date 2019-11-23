@@ -8,7 +8,7 @@
 # Timothée Couble
 
 from pso import PSO, minimise
-from test_ann import train_ANN_PSO, read_input, graph
+from test_ann import train_ANN_PSO, read_input, graph_all
 from ann_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND
 
 
@@ -37,18 +37,18 @@ def train_PSO_PSO(name):
     inputs, res_ex = read_input(name)
     dim = 10
     opso = PSO(dim,
-               lambda param: train_ANN_PSO(inputs, res_ex, 20, 150,
+               lambda param: train_ANN_PSO(inputs, res_ex, 20, 50,
                                            *active(*param))[0].best_score,
-               20, 20, inertia_start=0.5, inertia_end=0.5,
+               3, 1, inertia_start=0.5, inertia_end=0.5,
                comparator=minimise, min_bound=MIN_BOUND, max_bound=MAX_BOUND)
     print('oui')
     opso.run()
     params = active(*opso.best_position)
     print(params)
-    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 300, *params)
-    graph(pso, ann, res_ex, inputs)
+    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 40, *params)
+    graph_all(opso, pso, ann, res_ex, inputs)
 
 
 if __name__ == '__main__':
-    name = '../Data/1in_linear.txt'
+    name = '../Data/1in_tanh.txt'
     train_PSO_PSO(name)
