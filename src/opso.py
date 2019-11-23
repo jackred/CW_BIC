@@ -39,7 +39,7 @@ def train_PSO_PSO(name):
     opso = PSO(dim,
                lambda param: train_ANN_PSO(inputs, res_ex, 20, 50,
                                            *active(*param))[0].best_score,
-               3, 1, inertia_start=0.5, inertia_end=0.5,
+               10, 5, inertia_start=0.5, inertia_end=0.5,
                comparator=minimise, min_bound=MIN_BOUND, max_bound=MAX_BOUND)
     print('oui')
     opso.run()
