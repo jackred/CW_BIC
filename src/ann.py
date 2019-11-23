@@ -30,11 +30,11 @@ class Connection:
 
 
 class Layer:
-    def __init__(self, nb_neurons):
+    def __init__(self, nb_neurons, activation):
         self.neurons = [0] * nb_neurons
         self.length = nb_neurons
         self.bias = 0
-        self.activation = default_activation
+        self.activation = activation
 
 
 class InputLayer(Layer):
@@ -44,7 +44,7 @@ class InputLayer(Layer):
 
 
 class ANN:
-    def __init__(self, nb_neurons, nb_layers):
+    def __init__(self, nb_neurons, nb_layers, activation):
         self.nb_neurons = sum(nb_neurons[i] * nb_neurons[i+1]
                               for i in range(len(nb_neurons)-1))
         if nb_layers < 0:
@@ -54,7 +54,8 @@ class ANN:
         if len(nb_neurons) != nb_layers:
             raise ValueError(
                 'Numbers of neurons should match numbers of layers')
-        self.layers = [Layer(nb_neurons[i]) for i in range(1, nb_layers)]
+        self.layers = [Layer(nb_neurons[i], activation)
+                       for i in range(1, nb_layers)]
         self.layers.insert(0, InputLayer(nb_neurons[0]))
         self.connections = [Connection(self.layers[i],
                                        self.layers[i+1])
@@ -72,12 +73,14 @@ class ANN:
             self.connections[i].update_weights(weights[i])
 
     def update_bias(self, bias):
-        for i in range(0, len(self.layers)-1):
+        for i in range(len(self.layers)-1):
             self.layers[i+1].bias = bias[i]
 
     def update_params(self, params):
-        weights = params[0:self.nb_neurons]
-        bias = params[self.nb_neurons:self.nb_neurons+len(self.layers)-1]
+        m = 0
+        weights = params[m:self.nb_neurons]
+        m += self.nb_neurons
+        bias = params[m:m+len(self.layers)-1]
         self.update_weights(weights)
         self.update_bias(bias)
 
