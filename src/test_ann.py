@@ -42,22 +42,21 @@ def active(params, ann, inputs, res_ex):
     return mean_square_error(res_ex, res), res
 
 
-def train_ANN_PSO(inputs, res_ex, n_particle, n_iter, nb_h_layers,
-                  nb_neurons_layer,
-                  min_bound, max_bound, cognitive_weight,
+def train_ANN_PSO(inputs, res_ex, n_iter, n_particle, n_neighbor, nb_h_layers,
+                  nb_neurons_layer, min_bound, max_bound, cognitive_weight,
                   social_weight, inertia_start, inertia_end,
                   velocity_max, activation, draw_graph=False):
     nb_neurons = [len(inputs[0])]
     nb_neurons.extend([nb_neurons_layer] * nb_h_layers)
     nb_neurons.append(1)
-    print(nb_neurons)
+    print(nb_neurons, n_neighbor, activation)
     ann = ANN(nb_neurons=nb_neurons, nb_layers=len(nb_neurons),
               activation=activation)
     dim = sum(nb_neurons[i] * nb_neurons[i+1]
               for i in range(len(nb_neurons)-1)) + len(nb_neurons) - 1
     pso = PSO(dim, lambda params: active(params, ann, inputs, res_ex),
-              max_iter=n_iter, n_particle=n_particle, comparator=minimise,
-              min_bound=min_bound, max_bound=max_bound,
+              max_iter=n_iter, n_particle=n_particle, n_neighbor=n_neighbor,
+              comparator=minimise, min_bound=min_bound, max_bound=max_bound,
               cognitive_weight=cognitive_weight, social_weight=social_weight,
               inertia_start=inertia_start, inertia_end=inertia_end,
               velocity_max=velocity_max)
@@ -71,9 +70,9 @@ def main():
     name = '../Data/1in_tanh.txt'
     inputs, res_ex = read_input(name)
     real_time_graph = False
-    args = [1, 3, -7.176582343826539, 3.0666915574121836, 0.0,
+    args = [40, 2, 1, 3, -7.176582343826539, 3.0666915574121836, 0.0,
             2.2625112213772844, -0.26381961890844063, 1.0, 50.0, ann_help.atan]
-    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 120, *args,
+    pso, ann = train_ANN_PSO(inputs, res_ex, 120, *args,
                              draw_graph=real_time_graph)
     if not real_time_graph:
         pso.set_graph_config(inputs=inputs, res_ex=res_ex, dry=True)

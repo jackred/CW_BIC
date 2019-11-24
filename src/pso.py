@@ -49,7 +49,7 @@ class Particle:
         self.velocity = [random.uniform(min_bound-position[i],
                                         max_bound - position[i])
                          for i in range(dimension)]
-        self.informants = []
+        self.neighbors = []
         self.best_score = self.default_score
         self.best_position = self.position
 
@@ -59,7 +59,7 @@ class Particle:
     def get_best_informant_position(self):
         best_score = self.default_score
         best_position = []
-        for particle in self.informants:
+        for particle in self.neighbors:
             if self.comparator(particle.best_score, best_score):
                 best_score = particle.best_score
                 best_position = deepcopy(particle.best_position)
@@ -103,8 +103,8 @@ class Particle:
 
 
 class PSO:
-    def __init__(self, dimension, fitness_function, max_iter, n_particle=40,
-                 cognitive_weight=COGNITIVE_WEIGHT,
+    def __init__(self, dimension, fitness_function, max_iter=100, n_particle=40,
+                 n_neighbor=4, cognitive_weight=COGNITIVE_WEIGHT,
                  social_weight=SOCIAL_WEIGHT, inertia_start=INERTIA_START,
                  inertia_end=INERTIA_END, velocity_max=VELOCITY_MAX,
                  comparator=maximise, min_bound=-10, max_bound=10, endl='\r',
@@ -136,14 +136,20 @@ class PSO:
                      cognitive_weight, social_weight, velocity_max)
             for _ in range(n_particle)
         ]
+        if n_neighbor < 0:
+            raise ValueError('The nb of informant should be greater than 0')
+        if n_neighbor > n_particle - 1:
+            raise ValueError('The nb of informant should be smaller than the '
+                             'number of particle - 1')
         for particle in self.particles:
             particle.evaluate(fitness_function)
             idx = self.particles.index(particle)
-            particle.informants.append(self.particles[idx - 1])
-            particle.informants.append(
-               self.particles[(idx + 1) % n_particle]
-            )
-            # particle.informants = [i for i in self.particles if i != particle]
+            for i in range(1, int(n_neighbor / 2) + 1):
+                particle.neighbors.append(self.particles[idx - i])
+                particle.neighbors.append(
+                   self.particles[(idx + i) % n_particle]
+                )
+            # particle.neighbors = [i for i in self.particles if i != particle]
 
     def generate_position(self):
         return [random.uniform(self.min_bound, self.max_bound)
