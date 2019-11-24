@@ -9,7 +9,8 @@
 
 
 from pso import PSO, minimise
-from test_ann import train_ANN_PSO, read_input, train_PSO, graph_opso
+from test_pso import train_PSO
+from train_help import graph_opso, read_input
 from ann_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND, Rosenbrock
 
 

@@ -10,7 +10,7 @@
 import json
 import os
 
-NAME_DIR = 'config'
+NAME_DIR = '../config'
 EXT = '.json'
 
 
@@ -33,6 +33,13 @@ def encode_args(function, name='opso', **kwargs):
 
 def decode_args(function, name='opso', n=0):
     name = "%s/%s_%s_%d%s" % (NAME_DIR, function, name, n, EXT)
+    with open(name, 'r') as f:
+        args = f.read()
+    return json.loads(args)
+
+
+def get_born_config(filename='opso_default_born'):
+    name = "%s/%s%s" % (NAME_DIR, filename, EXT)
     with open(name, 'r') as f:
         args = f.read()
     return json.loads(args)

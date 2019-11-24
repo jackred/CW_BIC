@@ -9,31 +9,29 @@
 
 
 from pso import PSO, minimise
-from test_ann import train_ANN_PSO, read_input, train_PSO, graph_opso
+from test_ann import train_ANN_PSO
+from test_pso import train_PSO
+from train_help import graph_opso, read_input
+from pso_json import get_born_config
 from ann_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND, Rosenbrock
 import matplotlib.pyplot as plt
 
 
-def active(n_neighbor, nb_h_layers, nb_neurons_layer,
-           min_bound, max_bound, cognitive_weight,
-           social_weight, inertia_start, inertia_end,
-           velocity_max, i_activation):
-    n_neighbor = scale(n_neighbor, 2, 16)
-    nb_h_layers = round(scale(nb_h_layers, 1, 4))
-    nb_neurons_layer = round(scale(nb_neurons_layer, 1, 5))
-    min_bound = scale(min_bound, -1, 0)
-    max_bound = scale(max_bound, 0, 1)
-    cognitive_weight = scale(cognitive_weight, 0, 8)
-    social_weight = scale(social_weight, 0, 8)
-    inertia_start = scale(inertia_start, -2, 2)
-    inertia_end = scale(inertia_end, -2, 2)
-    velocity_max = scale(velocity_max, 0.000001, 50)
-    i_activation = round(scale(i_activation, 0, len(ACTIVATIONS) - 1))
-    res = [n_neighbor, nb_h_layers, nb_neurons_layer,
-           min_bound, max_bound, cognitive_weight,
-           social_weight, inertia_start, inertia_end,
-           velocity_max, ACTIVATIONS[i_activation]]
-    return res
+def active(args, born):
+    # Iterate through all arguments to scale them between specific born
+    i = 0
+    for key in born:
+        args[i] = scale(args[i], born[key][0], born[key][1])
+        i += 1
+
+    # Round nb_h_layers and nb_neurons_layer to have int values
+    args[1] = round(args[1])
+    args[2] = round(args[2])
+
+    # Get activation functions
+    i_activation = round(scale(args[-1], 0, len(ACTIVATIONS) - 1))
+    activations = [ACTIVATIONS[i_activation] for _ in range(args[1] + 1)]
+    return args[:-1] + [activations]
 
 
 def train_mean(*args):
@@ -42,18 +40,19 @@ def train_mean(*args):
     best_score = float("inf")
     for i in range(4):
         pso, _ = train_ANN_PSO(*args)
-        res.append(pso.best_score)
-        if pso.best_score < best_score:
-            best_score = pso.best_score
+        res.append(pso.best_global_score)
+        if pso.best_global_score < best_score:
+            best_score = pso.best_global_score
             best_pso = pso
     return sum(res) / len(res), best_pso
 
 
-def train_PSO_PSO_ANN(inputs, res_ex, draw_graph=False):
+def train_PSO_PSO_ANN(inputs, res_ex, borns, draw_graph=False):
     dim = 11
     opso = PSO(dim,
-               lambda param: train_mean(inputs, res_ex, 50, 25, *active(*param)),
-               max_iter=10, n_particle=8, n_neighbor=4,
+               lambda param:
+               train_mean(inputs, res_ex, 50, 25, *active(param, borns)),
+               max_iter=2, n_particle=7, n_neighbor=4,
                inertia_start=0.5, inertia_end=0.5, comparator=minimise,
                min_bound=MIN_BOUND, max_bound=MAX_BOUND)
     print("\nRunning...\n")
@@ -67,8 +66,9 @@ def main():
     name = '../Data/1in_cubic.txt'
     inputs, res_ex = read_input(name)
     real_time_graph = False
-    pso = train_PSO_PSO_ANN(inputs, res_ex, draw_graph=real_time_graph)
-    print(active(*pso.best_position))
+    born = get_born_config()
+    pso = train_PSO_PSO_ANN(inputs, res_ex, born, draw_graph=real_time_graph)
+    print(active(pso.best_position, born))
     if not real_time_graph:
         pso.set_graph_config(inputs=inputs, res_ex=res_ex, opso=True)
         pso.draw_graphs()
@@ -113,6 +113,6 @@ def train_PSO_PSO(function):
 
 
 if __name__ == '__main__':
-    #main()
-    ros = Rosenbrock(12)
-    train_PSO_PSO(ros)
+    main()
+    # ros = Rosenbrock(12)
+    # train_PSO_PSO(ros)
