@@ -9,6 +9,7 @@
 
 from ann_help import default_activation
 
+
 class Connection:
     """
     represent a connection between 2 layers:
