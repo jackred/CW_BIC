@@ -69,7 +69,7 @@ def train_ANN_PSO(inputs, res_ex, n_iter, n_particle, n_neighbor, nb_h_layers,
 def main():
     name = '../Data/1in_tanh.txt'
     inputs, res_ex = read_input(name)
-    real_time_graph = False
+    real_time_graph = True
     args = [40, 2, 1, 3, -7.176582343826539, 3.0666915574121836, 0.0,
             2.2625112213772844, -0.26381961890844063, 1.0, 50.0, ann_help.atan]
     pso, ann = train_ANN_PSO(inputs, res_ex, 120, *args,

@@ -156,7 +156,8 @@ class PSO:
                 for _ in range(self.dimension)]
 
     def run(self):
-        for i in range(self.max_iter):
+        i = 0
+        while i < self.max_iter and self.best_score > 0.001:
             print('%d / %d' % (i+1, self.max_iter), end=self.endl)
             inertia = self.inertia_start \
                 - ((self.inertia_start - self.inertia_end) / self.max_iter) * i
@@ -183,6 +184,7 @@ class PSO:
                 particle.update_best_position()
             if self.graph_config:
                 self.draw_graphs()
+            i += 1
 
     def set_graph_config(self, res_ex, inputs, dry):
         inputs_str = [f"{i}: {inputs[i]}" for i in range(len(inputs))]
