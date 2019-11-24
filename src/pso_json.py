@@ -38,7 +38,7 @@ def decode_args(function, name='opso', n=0):
     return json.loads(args)
 
 
-def get_born_config(filename='opso_default_born'):
+def get_boundary_config(filename='opso_default_boundary'):
     name = "%s/%s%s" % (NAME_DIR, filename, EXT)
     with open(name, 'r') as f:
         args = f.read()

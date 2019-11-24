@@ -11,16 +11,16 @@
 from pso import PSO, minimise
 from test_ann import train_ANN_PSO
 from train_help import graph_opso, read_input
-from pso_json import get_born_config
+from pso_json import get_boundary_config
 from ann_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND, Rosenbrock
 import matplotlib.pyplot as plt
 
 
-def scale_args(args, born):
+def scale_args(args, boundary):
     # Iterate through all arguments to scale them between specific born
     i = 0
-    for key in born:
-        args[i] = scale(args[i], born[key][0], born[key][1])
+    for key in boundary:
+        args[i] = scale(args[i], boundary[key][0], boundary[key][1])
         i += 1
 
     # Round nb_h_layers and nb_neurons_layer to have int values
@@ -46,11 +46,11 @@ def fitness_mean(*args):
     return sum(res) / len(res), best_pso
 
 
-def train_PSO_PSO_ANN(inputs, res_ex, born, draw_graph=False):
+def train_PSO_PSO_ANN(inputs, res_ex, boundary, draw_graph=False):
     dim = 11
     opso = PSO(dim,
                lambda param: fitness_mean(inputs, res_ex, 50, 25,
-                                          *scale_args(param, born)),
+                                          *scale_args(param, boundary)),
                max_iter=10, n_particle=8, n_neighbor=4,
                inertia_start=0.5, inertia_end=0.5, comparator=minimise,
                min_bound=MIN_BOUND, max_bound=MAX_BOUND)
@@ -65,9 +65,10 @@ def main():
     name = '../Data/1in_cubic.txt'
     inputs, res_ex = read_input(name)
     real_time_graph = False
-    born = get_born_config()
-    pso = train_PSO_PSO_ANN(inputs, res_ex, born, draw_graph=real_time_graph)
-    print(scale_args(pso.best_position, born))
+    boundary = get_boundary_config()
+    pso = train_PSO_PSO_ANN(inputs, res_ex, boundary,
+                            draw_graph=real_time_graph)
+    print(scale_args(pso.best_position, boundary))
     if not real_time_graph:
         pso.set_graph_config(inputs=inputs, res_ex=res_ex, opso=True)
         pso.draw_graphs()
