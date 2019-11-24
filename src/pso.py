@@ -27,10 +27,13 @@ def maximise(a, b):
 
 
 class Particle:
-    def __init__(self, dimension, position, comparator=maximise,
+    def __init__(self, dimension, position, min_bound, max_bound,
+                 comparator=maximise,
                  cognitive_weight=COGNITIVE_WEIGHT,
                  social_weight=SOCIAL_WEIGHT, inertia_start=INERTIA_START,
                  inertia_end=INERTIA_END, velocity_max=VELOCITY_MAX):
+        self.min_bound = min_bound
+        self.max_bound = max_bound
         self.cognitive_weight = cognitive_weight
         self.social_weight = social_weight
         self.inertia_start = inertia_start
@@ -43,7 +46,9 @@ class Particle:
         self.res = dimension
         self.default_score = float("inf") if self.comparator(0, 1) \
             else -float("inf")
-        self.velocity = [0 for _ in range(dimension)]
+        self.velocity = [random.uniform(min_bound-position[i],
+                                        max_bound - position[i])
+                         for i in range(dimension)]
         self.informants = []
         self.best_score = self.default_score
         self.best_position = self.position
@@ -59,6 +64,19 @@ class Particle:
                 best_score = particle.best_score
                 best_position = deepcopy(particle.best_position)
         return best_position
+
+    def update_velocity_2011(self, inertia):
+        best_informant_position = self.get_best_informant_position()
+        for i in range(self.dimension):
+            gravity = (self.position[i]
+                       + (random.uniform(0, 1) * self.cognitive_weight)
+                       * (self.best_position[i] - self.position[i])
+                       + (random.uniform(0, 1) * self.social_weight)
+                       * (best_informant_position[i] - self.position[i]))
+            random_new_position = random.uniform(gravity, self.position[i])
+            self.velocity[i] = min(self.velocity_max,
+                                   inertia * self.velocity[i]
+                                   + random_new_position - self.position[i])
 
     def update_velocity(self, inertia):
         best_informant_position = self.get_best_informant_position()
@@ -77,10 +95,10 @@ class Particle:
             self.best_score = self.score
             self.best_position = deepcopy(self.position)
 
-    def move(self, min_bound, max_bound):
+    def move(self):
         for i in range(self.dimension):
-            self.position[i] = max(min_bound,
-                                   min(max_bound,
+            self.position[i] = max(self.min_bound,
+                                   min(self.max_bound,
                                        self.position[i] + self.velocity[i]))
 
 
@@ -89,7 +107,9 @@ class PSO:
                  cognitive_weight=COGNITIVE_WEIGHT,
                  social_weight=SOCIAL_WEIGHT, inertia_start=INERTIA_START,
                  inertia_end=INERTIA_END, velocity_max=VELOCITY_MAX,
-                 comparator=maximise, min_bound=-10, max_bound=10):
+                 comparator=maximise, min_bound=-10, max_bound=10, endl='\r',
+                 version=2007):
+        self.version = version
         if dimension <= 0:
             raise ValueError('The vector dimension should be greater than 0')
         self.dimension = dimension
@@ -109,8 +129,10 @@ class PSO:
         self.best_mean_square_error = []
         self.graph_config = {}
         self.best_res = []
+        self.endl = endl
         self.particles = [
-            Particle(dimension, self.generate_position(), comparator,
+            Particle(dimension, self.generate_position(), min_bound, max_bound,
+                     comparator,
                      cognitive_weight, social_weight, velocity_max)
             for _ in range(n_particle)
         ]
@@ -129,7 +151,7 @@ class PSO:
 
     def run(self):
         for i in range(self.max_iter):
-            print('%d / %d' % (i+1, self.max_iter), end="\r")
+            print('%d / %d' % (i+1, self.max_iter), end=self.endl)
             inertia = self.inertia_start \
                 - ((self.inertia_start - self.inertia_end) / self.max_iter) * i
             best_local_score = self.particles[0].score
@@ -144,13 +166,17 @@ class PSO:
             self.average_mean_square_error.append(
                 sum(x.score for x in self.particles) / len(self.particles))
             for particle in self.particles:
-                particle.update_velocity(inertia)
-                particle.move(self.min_bound, self.max_bound)
+                if self.version == 2007:
+                    particle.update_velocity(inertia)
+                elif self.version == 2011:
+                    particle.update_velocity_2011(inertia)
+                else:
+                    raise ValueError('Wrong PSO Version')
+                particle.move()
                 particle.evaluate(self.fitness_function)
                 particle.update_best_position()
             if self.graph_config:
                 self.draw_graphs()
-
 
     def set_graph_config(self, res_ex, inputs, dry):
         inputs_str = [f"{i}: {inputs[i]}" for i in range(len(inputs))]
@@ -165,7 +191,6 @@ class PSO:
         if not dry:
             self.graph_config['opso_ax'] = plt.subplot(222)
 
-
     @staticmethod
     def draw_graph_pso(pso, ax, name="PSO"):
         ax.clear()
@@ -174,7 +199,6 @@ class PSO:
         plt.plot(pso.best_mean_square_error, color='g', label='Best')
         plt.plot(pso.average_mean_square_error, color='c', label='Average')
         plt.legend()
-
 
     def draw_graph_ann(self, res):
         self.graph_config['ann_ax'].clear()
@@ -187,7 +211,6 @@ class PSO:
         plt.tick_params(axis='x', labelrotation=70, width=0.5)
         plt.xticks(range(0, len(self.graph_config['inputs']), 5))
 
-
     def draw_graphs(self):
         if self.graph_config['dry']:
             self.draw_graph_ann(self.best_res)
@@ -197,3 +220,25 @@ class PSO:
             self.draw_graph_pso(self.best_res, self.graph_config['pso_ax'])
             self.draw_graph_pso(self, self.graph_config['opso_ax'], "OPSO")
         plt.pause(0.0005)
+
+
+class Rosenbrock:
+    def __init__(self, dimension=2):
+        self.max_bound = 10
+        self.min_bound = -5
+        self.dimension = dimension
+
+    def generate_random(self):
+        return [random.uniform(self.min_bound, self.max_bound)
+                for _ in range(self.dimension)]
+
+    def evaluate(self, xx):
+        d = len(xx)
+        int_sum = 0
+        for i in range(d-1):
+            xi = xx[i]
+            xnext = xx[i+1]
+            new = 100*(xnext-xi**2)**2 + (xi-1)**2
+            int_sum = int_sum + new
+        y = int_sum
+        return y

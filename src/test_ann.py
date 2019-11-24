@@ -8,13 +8,18 @@
 # Timothée Couble
 
 from ann import ANN
-from pso import PSO, maximise, minimise
+from pso import PSO, maximise, minimise, Rosenbrock
 import matplotlib.pyplot as plt
 import ann_help
+from math import sqrt
 
 
 def mean_square_error(d, u):
     return (1 / len(d)) * sum([pow((d[i] - u[i]), 2) for i in range(len(d))])
+
+
+def mean_absolute_error(d, u):
+    return (1 / len(d)) * sum(abs(d[i] - u[i])for i in range(len(d)))
 
 
 def read_input(name):
@@ -65,25 +70,58 @@ def train_ANN_PSO(inputs, res_ex, n_particle, n_iter, nb_h_layers,
 def main():
     name = '../Data/1in_tanh.txt'
     inputs, res_ex = read_input(name)
-    # nb_h_layers = 3
-    # nb_neurons_layer = 5
-    # activation = ann_help.tanh
-    # min_bound = -5
-    # max_bound = 5
-    # pso, ann = train_ANN_PSO(inputs, res_ex, 40, 150, nb_h_layers,
-    #                          nb_neurons_layer,
-    #                          min_bound, max_bound, 2, 2, 0.9, 0.4, 20,
-    #                          activation)
-    # graph(pso, ann, res_ex, inputs, True)
     real_time_graph = False
     args = [1, 3, -7.176582343826539, 3.0666915574121836, 0.0,
             2.2625112213772844, -0.26381961890844063, 1.0, 50.0, ann_help.atan]
-    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 120, *args, draw_graph=real_time_graph)
+    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 120, *args,
+                             draw_graph=real_time_graph)
     if not real_time_graph:
         pso.set_graph_config(inputs=inputs, res_ex=res_ex, dry=True)
         pso.draw_graphs()
     plt.show()
 
 
+def graph_pso(pso, i, s='PSO'):
+    plt.subplot(i)
+    plt.title(s + ' ' + "Mean square error evolution")
+    plt.plot(pso.best_mean_square_error, color='g', label='Best')
+    plt.plot(pso.average_mean_square_error, color='c', label='Average')
+    plt.legend()
+
+
+def graph_opso(pso, opso):
+    plt.figure(1)
+    graph_pso(pso, 211)
+    graph_pso(opso, 212)
+    plt.show()
+
+
+def train_PSO(function, comparator, n_particle, n_iter, min_bound, max_bound,
+              cognitive_weight, social_weight, inertia_start, inertia_end,
+              velocity_max):
+    pso = PSO(function.dimension, function.evaluate, max_iter=n_iter,
+              n_particle=n_particle, comparator=comparator,
+              min_bound=min_bound, max_bound=max_bound,
+              cognitive_weight=cognitive_weight, social_weight=social_weight,
+              inertia_start=inertia_start, inertia_end=inertia_end,
+              velocity_max=velocity_max, version=2011, endl='\r')
+    pso.run()
+    print('\n')
+    return pso
+
+
 if __name__ == '__main__':
     main()
+    # rosenbrock = Rosenbrock(5)
+    # res = []
+    # for i in range(30):
+    #     pso = train_PSO(rosenbrock, minimise, 40, 2500, -5, 10, 2.161727220149314, 0.8476159691879278, 0.4539167184315849, 0.7073827080382431, 1e-06)
+    #     res.append(pso.best_score)
+    # res.sort()
+    # print(res)
+    # mean = sum(res) / len(res)
+    # print('mean:', mean)
+    # print('median:', res[len(res)//2])
+    # print('std:', sqrt((1/(len(res) - 1)) * sum([(i - mean) ** 2 for i in res])))
+    # print('best:', res[0])
+    # print('worst:', res[-1])
