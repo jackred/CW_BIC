@@ -33,22 +33,30 @@ def active(nb_h_layers, nb_neurons_layer,
     return res
 
 
+def train_mean(*args):
+    res = []
+    for i in range(4):
+        pso, _ = train_ANN_PSO(*args)
+        res.append(pso.best_score)
+    return sum(res) / len(res)
+
+
 def train_PSO_PSO(name):
     inputs, res_ex = read_input(name)
     dim = 10
     opso = PSO(dim,
-               lambda param: train_ANN_PSO(inputs, res_ex, 20, 50,
-                                           *active(*param))[0].best_score,
-               10, 5, inertia_start=0.5, inertia_end=0.5,
+               lambda param: train_mean(inputs, res_ex, 5, 20,
+                                        *active(*param)),
+               10, 3, inertia_start=0.5, inertia_end=0.5,
                comparator=minimise, min_bound=MIN_BOUND, max_bound=MAX_BOUND)
     print('oui')
     opso.run()
     params = active(*opso.best_position)
     print(params)
-    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 40, *params)
+    pso, ann = train_ANN_PSO(inputs, res_ex, 300, 40, *params)
     graph_all(opso, pso, ann, res_ex, inputs)
 
 
 if __name__ == '__main__':
-    name = '../Data/1in_tanh.txt'
+    name = '../Data/1in_cubic.txt'
     train_PSO_PSO(name)

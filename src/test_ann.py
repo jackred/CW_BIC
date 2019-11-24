@@ -92,15 +92,19 @@ def graph_all(opso, pso, ann, res_ex, inputs):
 
 
 if __name__ == '__main__':
-    name = '../Data/2in_complex.txt'
+    name = '../Data/1in_tanh.txt'
     inputs, res_ex = read_input(name)
-    nb_h_layers = 3
-    nb_neurons_layer = 5
-    activation = ann_help.tanh
-    min_bound = -5
-    max_bound = 5
-    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 150, nb_h_layers,
-                             nb_neurons_layer,
-                             min_bound, max_bound, 2, 2, 0.9, 0.4, 20,
-                             activation)
+    # nb_h_layers = 3
+    # nb_neurons_layer = 5
+    # activation = ann_help.tanh
+    # min_bound = -5
+    # max_bound = 5
+    # pso, ann = train_ANN_PSO(inputs, res_ex, 40, 150, nb_h_layers,
+    #                          nb_neurons_layer,
+    #                          min_bound, max_bound, 2, 2, 0.9, 0.4, 20,
+    #                          activation)
+    # graph(pso, ann, res_ex, inputs, True)
+    args = [1, 3, -7.176582343826539, 3.0666915574121836, 0.0,
+            2.2625112213772844, -0.26381961890844063, 1.0, 50.0, ann_help.atan]
+    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 300, *args)
     graph(pso, ann, res_ex, inputs, True)
