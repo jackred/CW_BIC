@@ -8,9 +8,9 @@
 # Timothée Couble
 
 
-from pso import PSO, minimise, Rosenbrock
+from pso import PSO, minimise
 from test_ann import train_ANN_PSO, read_input, train_PSO, graph_opso
-from ann_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND
+from ann_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND, Rosenbrock
 import matplotlib.pyplot as plt
 
 
@@ -79,7 +79,7 @@ def train_mean_PSO(*args):
     res = []
     for i in range(4):
         pso = train_PSO(*args)
-        res.append(pso.best_score)
+        res.append(pso.best_global_score)
     return sum(res) / len(res)
 
 
@@ -100,7 +100,7 @@ def train_PSO_PSO(function):
     opso = PSO(dim,
                lambda param: train_mean_PSO(function, minimise, 20, 2000, -5, 10,
                                             *active_PSO(*param)),
-               40, 30, inertia_start=0.5, inertia_end=0,
+               40, 30, inertia_start=0.5, inertia_end=0.5,
                comparator=minimise, min_bound=MIN_BOUND, max_bound=MAX_BOUND,
                endl='\n\n')
     print('oui')
@@ -113,6 +113,6 @@ def train_PSO_PSO(function):
 
 
 if __name__ == '__main__':
-    main()
-    # ros = Rosenbrock(12)
-    # train_PSO_PSO(ros)
+    #main()
+    ros = Rosenbrock(12)
+    train_PSO_PSO(ros)

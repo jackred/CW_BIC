@@ -60,3 +60,26 @@ def scale(i, new_min_bound, new_max_bound, min_bound=MIN_BOUND,
     dnew = abs(new_min_bound - new_max_bound)
     res = (((i - min_bound) / d) * dnew) + new_min_bound
     return res
+
+
+
+class Rosenbrock:
+    def __init__(self, dimension=2):
+        self.max_bound = 10
+        self.min_bound = -5
+        self.dimension = dimension
+
+    def generate_random(self):
+        return [random.uniform(self.min_bound, self.max_bound)
+                for _ in range(self.dimension)]
+
+    def evaluate(self, xx):
+        d = len(xx)
+        int_sum = 0
+        for i in range(d-1):
+            xi = xx[i]
+            xnext = xx[i+1]
+            new = 100*(xnext-xi**2)**2 + (xi-1)**2
+            int_sum = int_sum + new
+        y = int_sum
+        return y

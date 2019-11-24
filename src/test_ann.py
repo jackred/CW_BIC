@@ -8,7 +8,7 @@
 # Timothée Couble
 
 from ann import ANN
-from pso import PSO, maximise, minimise, Rosenbrock
+from pso import PSO, maximise, minimise
 import matplotlib.pyplot as plt
 import ann_help
 from math import sqrt
@@ -43,8 +43,8 @@ def active(params, ann, inputs, res_ex):
 
 
 def train_ANN_PSO(inputs, res_ex, n_iter, n_particle, n_neighbor, nb_h_layers,
-                  nb_neurons_layer, min_bound, max_bound, cognitive_weight,
-                  social_weight, inertia_start, inertia_end,
+                  nb_neurons_layer, min_bound, max_bound, cognitive_trust,
+                  social_trust, inertia_start, inertia_end,
                   velocity_max, activation, draw_graph=False):
     nb_neurons = [len(inputs[0])]
     nb_neurons.extend([nb_neurons_layer] * nb_h_layers)
@@ -55,9 +55,10 @@ def train_ANN_PSO(inputs, res_ex, n_iter, n_particle, n_neighbor, nb_h_layers,
     dim = sum(nb_neurons[i] * nb_neurons[i+1]
               for i in range(len(nb_neurons)-1)) + len(nb_neurons) - 1
     pso = PSO(dim, lambda params: active(params, ann, inputs, res_ex),
-              max_iter=n_iter, n_particle=n_particle, n_neighbor=n_neighbor,
-              comparator=minimise, min_bound=min_bound, max_bound=max_bound,
-              cognitive_weight=cognitive_weight, social_weight=social_weight,
+              max_iter=n_iter, n_particle=n_particle,  n_neighbor=n_neighbor,
+              comparator=minimise,
+              min_bound=min_bound, max_bound=max_bound,
+              cognitive_trust=cognitive_trust, social_trust=social_trust,
               inertia_start=inertia_start, inertia_end=inertia_end,
               velocity_max=velocity_max)
     if draw_graph:
@@ -70,7 +71,7 @@ def main():
     name = '../Data/1in_tanh.txt'
     inputs, res_ex = read_input(name)
     real_time_graph = True
-    args = [40, 2, 1, 3, -7.176582343826539, 3.0666915574121836, 0.0,
+    args = [2, 1, 3, -7.176582343826539, 3.0666915574121836, 0.0,
             2.2625112213772844, -0.26381961890844063, 1.0, 50.0, ann_help.atan]
     pso, ann = train_ANN_PSO(inputs, res_ex, 120, *args,
                              draw_graph=real_time_graph)
@@ -95,13 +96,14 @@ def graph_opso(pso, opso):
     plt.show()
 
 
-def train_PSO(function, comparator, n_particle, n_iter, min_bound, max_bound,
-              cognitive_weight, social_weight, inertia_start, inertia_end,
+def train_PSO(function, comparator,  n_iter, n_particle, n_neighbor, min_bound,
+              max_bound,
+              cognitive_trust, social_trust, inertia_start, inertia_end,
               velocity_max):
     pso = PSO(function.dimension, function.evaluate, max_iter=n_iter,
-              n_particle=n_particle, comparator=comparator,
+              n_particle=n_particle, n_neighbor=n_neighbor, comparator=comparator,
               min_bound=min_bound, max_bound=max_bound,
-              cognitive_weight=cognitive_weight, social_weight=social_weight,
+              cognitive_trust=cognitive_trust, social_trust=social_trust,
               inertia_start=inertia_start, inertia_end=inertia_end,
               velocity_max=velocity_max, version=2011, endl='\r')
     pso.run()
@@ -110,17 +112,18 @@ def train_PSO(function, comparator, n_particle, n_iter, min_bound, max_bound,
 
 
 if __name__ == '__main__':
-    main()
-    # rosenbrock = Rosenbrock(5)
-    # res = []
-    # for i in range(30):
-    #     pso = train_PSO(rosenbrock, minimise, 40, 2500, -5, 10, 2.161727220149314, 0.8476159691879278, 0.4539167184315849, 0.7073827080382431, 1e-06)
-    #     res.append(pso.best_score)
-    # res.sort()
-    # print(res)
-    # mean = sum(res) / len(res)
-    # print('mean:', mean)
-    # print('median:', res[len(res)//2])
-    # print('std:', sqrt((1/(len(res) - 1)) * sum([(i - mean) ** 2 for i in res])))
-    # print('best:', res[0])
-    # print('worst:', res[-1])
+    #main()
+    rosenbrock = ann_help.Rosenbrock(12)
+    res = []
+    for i in range(3):
+        pso = train_PSO(rosenbrock, minimise, 2000, 20, 2, -5, 10, 1.8599977724940657, 2.558891680474429, -0.4525474302296826, -0.14651135431992146, 29.323357725071013)
+        res.append(pso.best_global_score)
+        print(pso.best_position)
+    res.sort()
+    print(res)
+    mean = sum(res) / len(res)
+    print('mean:', mean)
+    print('median:', res[len(res)//2])
+    print('std:', sqrt((1/(len(res) - 1)) * sum([(i - mean) ** 2 for i in res])))
+    print('best:', res[0])
+    print('worst:', res[-1])

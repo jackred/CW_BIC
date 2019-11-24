@@ -10,6 +10,9 @@
 from ann_help import default_activation
 
 
+"""
+represent a connection between 2 layers
+"""
 class Connection:
     def __init__(self, layer1, layer2,):
         self.layer1 = layer1
