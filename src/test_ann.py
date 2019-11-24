@@ -41,7 +41,7 @@ def train_ANN_PSO(inputs, res_ex, n_particle, n_iter, nb_h_layers,
                   nb_neurons_layer,
                   min_bound, max_bound, cognitive_weight,
                   social_weight, inertia_start, inertia_end,
-                  velocity_max, activation):
+                  velocity_max, activation, draw_graph=False):
     nb_neurons = [len(inputs[0])]
     nb_neurons.extend([nb_neurons_layer] * nb_h_layers)
     nb_neurons.append(1)
@@ -50,48 +50,19 @@ def train_ANN_PSO(inputs, res_ex, n_particle, n_iter, nb_h_layers,
               activation=activation)
     dim = sum(nb_neurons[i] * nb_neurons[i+1]
               for i in range(len(nb_neurons)-1)) + len(nb_neurons) - 1
-    pso = PSO(dim, lambda params: active(params, ann, inputs, res_ex)[0],
+    pso = PSO(dim, lambda params: active(params, ann, inputs, res_ex),
               max_iter=n_iter, n_particle=n_particle, comparator=minimise,
               min_bound=min_bound, max_bound=max_bound,
               cognitive_weight=cognitive_weight, social_weight=social_weight,
               inertia_start=inertia_start, inertia_end=inertia_end,
               velocity_max=velocity_max)
+    if draw_graph:
+        pso.set_graph_config(inputs=inputs, res_ex=res_ex, dry=True)
     pso.run()
     return pso, ann
 
 
-def graph_pso(pso, i, s='PSO'):
-    plt.subplot(i)
-    plt.title(s + ' ' + "Mean square error evolution")
-    plt.plot(pso.best_mean_square_error, color='g', label='Best')
-    plt.plot(pso.average_mean_square_error, color='c', label='Average')
-    plt.legend()
-
-
-def graph(pso, ann, res_ex, inputs, dry=False):
-    _, res = active(pso.best_position, ann, inputs, res_ex)
-    plt.figure(1)
-    graph_pso(pso, 211 if dry else 221)
-    plt.subplot(212)
-    plt.title("Target output and the ANN output comparaison")
-    plt.plot([f"{i}: {inputs[i]}" for i in range(len(inputs))], res,
-             label='Result')
-    plt.plot([f"{i}: {inputs[i]}" for i in range(len(inputs))], res_ex,
-             label='Target', linestyle=':')
-    plt.tick_params(axis='x', labelrotation=70, width=0.5)
-    plt.xticks(range(0, len(inputs), 5))
-    plt.legend()
-    if dry:
-        plt.show()
-
-
-def graph_all(opso, pso, ann, res_ex, inputs):
-    graph(pso, ann, res_ex, inputs)
-    graph_pso(opso, 222, 'OPSO')
-    plt.show()
-
-
-if __name__ == '__main__':
+def main():
     name = '../Data/1in_tanh.txt'
     inputs, res_ex = read_input(name)
     # nb_h_layers = 3
@@ -104,7 +75,15 @@ if __name__ == '__main__':
     #                          min_bound, max_bound, 2, 2, 0.9, 0.4, 20,
     #                          activation)
     # graph(pso, ann, res_ex, inputs, True)
+    real_time_graph = False
     args = [1, 3, -7.176582343826539, 3.0666915574121836, 0.0,
             2.2625112213772844, -0.26381961890844063, 1.0, 50.0, ann_help.atan]
-    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 300, *args)
-    graph(pso, ann, res_ex, inputs, True)
+    pso, ann = train_ANN_PSO(inputs, res_ex, 40, 120, *args, draw_graph=real_time_graph)
+    if not real_time_graph:
+        pso.set_graph_config(inputs=inputs, res_ex=res_ex, dry=True)
+        pso.draw_graphs()
+    plt.show()
+
+
+if __name__ == '__main__':
+    main()

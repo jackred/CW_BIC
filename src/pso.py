@@ -9,6 +9,7 @@
 
 import random
 from copy import deepcopy
+import matplotlib.pyplot as plt
 
 INERTIA_START = 0.9
 INERTIA_END = 0.4
@@ -39,6 +40,7 @@ class Particle:
         self.dimension = dimension
         self.comparator = comparator
         self.score = 0
+        self.res = dimension
         self.default_score = float("inf") if self.comparator(0, 1) \
             else -float("inf")
         self.velocity = [0 for _ in range(dimension)]
@@ -47,7 +49,7 @@ class Particle:
         self.best_position = self.position
 
     def evaluate(self, fitness_function):
-        self.score = fitness_function(self.position)
+        self.score, self.res = fitness_function(self.position)
 
     def get_best_informant_position(self):
         best_score = self.default_score
@@ -105,6 +107,8 @@ class PSO:
         self.best_position = []
         self.average_mean_square_error = []
         self.best_mean_square_error = []
+        self.graph_config = {}
+        self.best_res = []
         self.particles = [
             Particle(dimension, self.generate_position(), comparator,
                      cognitive_weight, social_weight, velocity_max)
@@ -125,7 +129,7 @@ class PSO:
 
     def run(self):
         for i in range(self.max_iter):
-            print('%d / %d' % (i, self.max_iter), end="\r")
+            print('%d / %d' % (i+1, self.max_iter), end="\r")
             inertia = self.inertia_start \
                 - ((self.inertia_start - self.inertia_end) / self.max_iter) * i
             best_local_score = self.particles[0].score
@@ -133,6 +137,7 @@ class PSO:
                 if self.comparator(particle.score, self.best_score):
                     self.best_score = particle.score
                     self.best_position = deepcopy(particle.position)
+                    self.best_res = particle.res
                 if self.comparator(particle.score, best_local_score):
                     best_local_score = particle.score
             self.best_mean_square_error.append(best_local_score)
@@ -143,3 +148,52 @@ class PSO:
                 particle.move(self.min_bound, self.max_bound)
                 particle.evaluate(self.fitness_function)
                 particle.update_best_position()
+            if self.graph_config:
+                self.draw_graphs()
+
+
+    def set_graph_config(self, res_ex, inputs, dry):
+        inputs_str = [f"{i}: {inputs[i]}" for i in range(len(inputs))]
+        self.graph_config = {
+            'res_ex': res_ex,
+            'inputs': inputs_str,
+            'dry': dry
+        }
+        plt.figure(1)
+        self.graph_config['ann_ax'] = plt.subplot(212)
+        self.graph_config['pso_ax'] = plt.subplot(211 if dry else 221)
+        if not dry:
+            self.graph_config['opso_ax'] = plt.subplot(222)
+
+
+    @staticmethod
+    def draw_graph_pso(pso, ax, name="PSO"):
+        ax.clear()
+        plt.subplot(ax)
+        plt.title(name + " Mean square error evolution")
+        plt.plot(pso.best_mean_square_error, color='g', label='Best')
+        plt.plot(pso.average_mean_square_error, color='c', label='Average')
+        plt.legend()
+
+
+    def draw_graph_ann(self, res):
+        self.graph_config['ann_ax'].clear()
+        plt.subplot(self.graph_config['ann_ax'])
+        plt.title("Target output and the ANN output comparaison")
+        plt.plot(self.graph_config['inputs'], res, label='Result')
+        plt.plot(self.graph_config['inputs'], self.graph_config['res_ex'],
+                 linestyle=':', label='Target')
+        plt.legend()
+        plt.tick_params(axis='x', labelrotation=70, width=0.5)
+        plt.xticks(range(0, len(self.graph_config['inputs']), 5))
+
+
+    def draw_graphs(self):
+        if self.graph_config['dry']:
+            self.draw_graph_ann(self.best_res)
+            self.draw_graph_pso(self, self.graph_config['pso_ax'])
+        else:
+            self.draw_graph_ann(self.best_res.best_res)
+            self.draw_graph_pso(self.best_res, self.graph_config['pso_ax'])
+            self.draw_graph_pso(self, self.graph_config['opso_ax'], "OPSO")
+        plt.pause(0.0005)

@@ -8,9 +8,9 @@
 # Timothée Couble
 
 from pso import PSO, minimise
-from test_ann import train_ANN_PSO, read_input, graph_all
+from test_ann import train_ANN_PSO, read_input
 from ann_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND
-
+import matplotlib.pyplot as plt
 
 def active(nb_h_layers, nb_neurons_layer,
            min_bound, max_bound, cognitive_weight,
@@ -35,28 +35,41 @@ def active(nb_h_layers, nb_neurons_layer,
 
 def train_mean(*args):
     res = []
+    best_pso = None
+    best_score = float("inf")
     for i in range(4):
         pso, _ = train_ANN_PSO(*args)
         res.append(pso.best_score)
-    return sum(res) / len(res)
+        if pso.best_score < best_score:
+            best_score = pso.best_score
+            best_pso = pso
+    return sum(res) / len(res), best_pso
 
 
-def train_PSO_PSO(name):
-    inputs, res_ex = read_input(name)
+def train_PSO_PSO(inputs, res_ex, draw_graph=False):
     dim = 10
     opso = PSO(dim,
                lambda param: train_mean(inputs, res_ex, 5, 20,
                                         *active(*param)),
                10, 3, inertia_start=0.5, inertia_end=0.5,
                comparator=minimise, min_bound=MIN_BOUND, max_bound=MAX_BOUND)
-    print('oui')
+    print("\nRunning...\n")
+    if draw_graph:
+        opso.set_graph_config(inputs=inputs, res_ex=res_ex, dry=False)
     opso.run()
-    params = active(*opso.best_position)
-    print(params)
-    pso, ann = train_ANN_PSO(inputs, res_ex, 300, 40, *params)
-    graph_all(opso, pso, ann, res_ex, inputs)
+    return opso
+
+
+def main():
+    name = '../Data/1in_tanh.txt'
+    inputs, res_ex = read_input(name)
+    real_time_graph = False
+    pso = train_PSO_PSO(inputs, res_ex, draw_graph=real_time_graph)
+    if not real_time_graph:
+        pso.set_graph_config(inputs=inputs, res_ex=res_ex, dry=False)
+        pso.draw_graphs()
+    plt.show()
 
 
 if __name__ == '__main__':
-    name = '../Data/1in_cubic.txt'
-    train_PSO_PSO(name)
+    main()
