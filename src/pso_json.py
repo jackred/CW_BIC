@@ -10,7 +10,7 @@
 import json
 import os
 
-NAME_DIR = '../config'
+NAME_DIR = 'config'
 EXT = '.json'
 
 
