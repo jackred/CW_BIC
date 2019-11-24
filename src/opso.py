@@ -58,7 +58,7 @@ def train_PSO_PSO_ANN(inputs, res_ex, draw_graph=False):
                min_bound=MIN_BOUND, max_bound=MAX_BOUND)
     print("\nRunning...\n")
     if draw_graph:
-        opso.set_graph_config(inputs=inputs, res_ex=res_ex, dry=False)
+        opso.set_graph_config(inputs=inputs, res_ex=res_ex, opso=True)
     opso.run()
     return opso
 
@@ -66,13 +66,13 @@ def train_PSO_PSO_ANN(inputs, res_ex, draw_graph=False):
 def main():
     name = '../Data/1in_cubic.txt'
     inputs, res_ex = read_input(name)
-    real_time_graph = True
+    real_time_graph = False
     pso = train_PSO_PSO_ANN(inputs, res_ex, draw_graph=real_time_graph)
+    print(active(*pso.best_position))
     if not real_time_graph:
-        pso.set_graph_config(inputs=inputs, res_ex=res_ex, dry=False)
+        pso.set_graph_config(inputs=inputs, res_ex=res_ex, opso=True)
         pso.draw_graphs()
     plt.show()
-    print(active(*pso.best_position))
 
 
 def train_mean_PSO(*args):

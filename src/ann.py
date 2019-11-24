@@ -9,7 +9,6 @@
 
 from ann_help import default_activation
 
-
 class Connection:
     """
     represent a connection between 2 layers:
@@ -74,7 +73,7 @@ class ANN:
         if len(nb_neurons) != nb_layers:
             raise ValueError(
                 'Numbers of neurons should match numbers of layers')
-        self.layers = [Layer(nb_neurons[i], activations[i])
+        self.layers = [Layer(nb_neurons[i], activations[i-1])
                        for i in range(1, nb_layers)]
         self.layers.insert(0, InputLayer(nb_neurons[0]))
         self.connections = [Connection(self.layers[i],

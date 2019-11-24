@@ -8,7 +8,7 @@
 # Timothée Couble
 
 from random import random
-from math import exp, tanh, cos, atan, asinh, sqrt, log, sin
+from math import exp, tanh, cos, atan, asinh, sqrt, log, sin, sinh
 
 
 MIN_BOUND = -5

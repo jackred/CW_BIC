@@ -42,7 +42,7 @@ class Particle:
         # fitness function
         self.fitness_function = fitness_function
         # ---
-        # PSO hyperparametres
+        # PSO hyperparameters
         # ---
         # maximise or minimise problem
         self.comparator = comparator
@@ -56,7 +56,7 @@ class Particle:
         self.cognitive_trust = cognitive_trust
         # how much trusting its best neighbor
         self.social_trust = social_trust
-        # limit to the velocity, to avoid goind to fast
+        # limit to the velocity, to avoid going to fast
         self.velocity_max = velocity_max
         # ---
         # particle parameter
@@ -66,7 +66,11 @@ class Particle:
         # initialize velocity of the particle
         self.init_velocity()
         # score of the particle at its position
-        self.score = self.fitness_function(self.position)
+        self.score = 0
+        # param for graph
+        self.res = None
+        # evaluate first time to set self.score and self.res
+        self.evaluate()
         # best score/position encountered by the particle
         self.best_scores_iterations = self.score
         self.best_position = self.position
@@ -78,11 +82,9 @@ class Particle:
         self.best_neighbor_score = float("inf") if comparator(0, 1) \
             else -float("inf")
         self.neighbors = []
-        # param for graph
-        self.res = None
 
     """
-    intialize randomly the position in the search space
+    initialize randomly the position in the search space
     """
     def init_position(self):
         self.position = [random.uniform(self.min_bound, self.max_bound)
@@ -90,7 +92,7 @@ class Particle:
 
     """
     affect the SPSO 2007 or 2011 velocity equation, move method and
-    intialize the velocity differently
+    initialize the velocity differently
     """
     def init_velocity(self):
         if self.version == 2007:
@@ -129,7 +131,7 @@ class Particle:
             self.score, self.res = res
 
     """
-    iterate trhought all neighbors and return the best past position
+    iterate through all neighbors and return the best past position
     """
     def update_best_neighbor(self):
         for particle in self.neighbors:
@@ -140,9 +142,9 @@ class Particle:
 
     """
     * gravity: center of gravity of the 3 points:
-      - current posiiton
-      - a point a bit beyong the best previous position
-      - a point a bit beyong the best previous neighbor
+      - current position
+      - a point a bit beyond the best previous position
+      - a point a bit beyond the best previous neighbor
     * gi = xi + (c_trust * (p_besti - xi) + s_trust * (i_besti - xi)) / 3
     * we define a random point in the hypersphere of centre gi and radius
     ||gi - xi|| => x'i
@@ -172,7 +174,7 @@ class Particle:
               + rand(0, s_trust)*(i_besti - xi(t)
     """
     def update_velocity_2007(self, inertia):
-        best_neighbor_position = self.get_best_neighbor_position()
+        self.update_best_neighbor()
         for i in range(self.dimension):
             self.velocity[i] = min(
                 self.velocity_max,
@@ -180,7 +182,7 @@ class Particle:
                  + random.uniform(0, 1) * self.cognitive_trust
                  * (self.best_position[i] - self.position[i])
                  + random.uniform(0, 1) * self.social_trust
-                 * (best_neighbor_position[i] - self.position[i]))
+                 * (self.best_neighbor_position[i] - self.position[i]))
             )
 
     """
@@ -310,7 +312,7 @@ class PSO:
 
     """
     main function of PSO
-    run for Nmax iteration
+    run for Nmax iteration and for global_best_score < 0.001
     the inertia is calculated linearly with the number of iteration
     """
     def run(self):
@@ -339,19 +341,26 @@ class PSO:
                 self.draw_graphs()
             i += 1
 
-    def set_graph_config(self, res_ex, inputs, dry):
+    """
+    configure graph parameters
+    """
+    def set_graph_config(self, res_ex, inputs, opso=False, res=True):
         inputs_str = [f"{i}: {inputs[i]}" for i in range(len(inputs))]
         self.graph_config = {
             'res_ex': res_ex,
             'inputs': inputs_str,
-            'dry': dry
+            'opso': opso,
+            'res': res
         }
         plt.figure(1)
         self.graph_config['ann_ax'] = plt.subplot(212)
-        self.graph_config['pso_ax'] = plt.subplot(211 if dry else 221)
-        if not dry:
+        self.graph_config['pso_ax'] = plt.subplot(221 if opso else 211)
+        if opso:
             self.graph_config['opso_ax'] = plt.subplot(222)
 
+    """
+    draw mean square error graph for pso and opso 
+    """
     @staticmethod
     def draw_graph_pso(pso, ax, name="PSO"):
         ax.clear()
@@ -361,6 +370,9 @@ class PSO:
         plt.plot(pso.average_score, color='c', label='Average')
         plt.legend()
 
+    """
+    draw graph for comparing target function and ann result
+    """
     def draw_graph_ann(self, res):
         self.graph_config['ann_ax'].clear()
         plt.subplot(self.graph_config['ann_ax'])
@@ -372,6 +384,9 @@ class PSO:
         plt.tick_params(axis='x', labelrotation=70, width=0.5)
         plt.xticks(range(0, len(self.graph_config['inputs']), 5))
 
+    """
+    draw graph for opso and for pso
+    """
     def draw_graphs(self):
         if not self.graph_config['opso']:
             if self.graph_config['res']:
