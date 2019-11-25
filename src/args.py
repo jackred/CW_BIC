@@ -16,6 +16,7 @@ def parse_args(name):
     argp = argparse.ArgumentParser(name)
     argp.add_argument('-f', '--function', dest='function',
                       help='function to optimize',
+                      required=True,
                       choices=['linear', 'cubic', 'tanh', 'sine',
                                'complex', 'xor'])
     return argp
