@@ -51,7 +51,7 @@ def train_ANN_PSO(inputs, res_ex, max_iter, n_particle, n_neighbor,
               min_bound=min_bound, max_bound=max_bound,
               cognitive_trust=cognitive_trust, social_trust=social_trust,
               inertia_start=inertia_start, inertia_end=inertia_end,
-              velocity_max=velocity_max, endl='', version=2011)
+              velocity_max=velocity_max, endl='', version=2007)
     if draw_graph:
         pso.set_graph_config(inputs=inputs, res_ex=res_ex)
     pso.run()
