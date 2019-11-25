@@ -8,8 +8,11 @@
 # Timothée Couble
 
 from ann import ANN
+from args import pso_args
 from pso import PSO, maximise, minimise, plt
 import train_help
+from pso_json import decode_args, encode_args
+from copy import deepcopy
 
 
 def fitness_for_ann(params, ann, inputs, res_ex):
@@ -21,28 +24,34 @@ def fitness_for_ann(params, ann, inputs, res_ex):
     return train_help.mean_square_error(res_ex, res), res
 
 
-def train_ANN_PSO(inputs, res_ex, n_iter, n_particle, n_neighbor, nb_h_layers,
-                  nb_neurons_layer, min_bound, max_bound, cognitive_trust,
-                  social_trust, inertia_start, inertia_end,
-                  velocity_max, activation, draw_graph=False):
-    nb_neurons = [len(inputs[0])]
+def set_nb_neurons(n_input, nb_neurons_layer, nb_h_layers):
+    nb_neurons = [n_input]
     if type(nb_neurons_layer) == list:
         nb_neurons.extend(nb_neurons_layer)
     else:
         nb_neurons.extend([nb_neurons_layer] * nb_h_layers)
     nb_neurons.append(1)
-    print(nb_neurons, n_neighbor, activation)
+    return nb_neurons
+
+
+def train_ANN_PSO(inputs, res_ex, max_iter, n_particle, n_neighbor,
+                  nb_h_layers,
+                  nb_neurons_layer, min_bound, max_bound, cognitive_trust,
+                  social_trust, inertia_start, inertia_end,
+                  velocity_max, activations, draw_graph=False):
+    nb_neurons = set_nb_neurons(len(inputs[0]), nb_neurons_layer, nb_h_layers)
+    # print(nb_neurons, n_neighbor, activations)
     ann = ANN(nb_neurons=nb_neurons, nb_layers=len(nb_neurons),
-              activations=activation)
+              activations=activations)
     dim = sum(nb_neurons[i] * nb_neurons[i+1]
               for i in range(len(nb_neurons)-1)) + len(nb_neurons) - 1
     pso = PSO(dim, lambda params: fitness_for_ann(params, ann, inputs, res_ex),
-              max_iter=n_iter, n_particle=n_particle,  n_neighbor=n_neighbor,
+              max_iter=max_iter, n_particle=n_particle,  n_neighbor=n_neighbor,
               comparator=minimise,
               min_bound=min_bound, max_bound=max_bound,
               cognitive_trust=cognitive_trust, social_trust=social_trust,
               inertia_start=inertia_start, inertia_end=inertia_end,
-              velocity_max=velocity_max)
+              velocity_max=velocity_max, endl='', version=2011)
     if draw_graph:
         pso.set_graph_config(inputs=inputs, res_ex=res_ex)
     pso.run()
@@ -50,16 +59,21 @@ def train_ANN_PSO(inputs, res_ex, n_iter, n_particle, n_neighbor, nb_h_layers,
 
 
 def main():
-    name = '../Data/1in_sine.txt'
-    inputs, res_ex = train_help.read_input(name)
+    args = pso_args().parse_args()
+    file_name = train_help.name_to_file(args.function)
+    inputs, res_ex = train_help.read_input(file_name)
     real_time_graph = False
-    # args = [2, 1, 3, -7.176582343826539, 3.0666915574121836, 0.0,
-    #         2.262511221377284, -0.2638196189084406, 1.0, 50.0, train_help.atan]
-    args = [2, 2, 5, -3.0, 0.0, 8.0, 3.30281688745529, 2.0, -1.214638225596609,
-            38.52018177792397, [train_help.sigmoid, train_help.sigmoid,
-                                train_help.sigmoid]]
-    pso, ann = train_ANN_PSO(inputs, res_ex, 300, 60, *args,
+    pso_arg = decode_args(args.function, 'pso', args.pnc)
+    activations = deepcopy(pso_arg['activations'])
+    train_help.read_activation(pso_arg)
+    pso, ann = train_ANN_PSO(inputs, res_ex, **pso_arg,
                              draw_graph=real_time_graph)
+    print(pso_arg)
+    nb_neurons = set_nb_neurons(len(inputs[0]), pso_arg['nb_neurons_layer'],
+                                pso_arg['nb_h_layers'])
+    encode_args(args.function, 'ann', params=pso.best_position,
+                nb_neurons=nb_neurons, nb_layers=len(nb_neurons),
+                activations=activations)
     if not real_time_graph:
         pso.set_graph_config(inputs=inputs, res_ex=res_ex)
         pso.draw_graphs()

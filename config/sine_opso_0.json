@@ -1,0 +1,16 @@
+{"opso_arg":
+ {
+   "n_iter": 20,
+   "n_particle": 30,
+   "n_neighbor": 3,
+   "cognitive_trust": 2,
+   "social_trust": 2,
+   "inertia_start": -1,
+   "inertia_end": 1,
+   "velocity_max": 20
+ },
+ "pso_arg":{
+   "n_iter": 150,
+   "n_particle": 20,
+ }
+}

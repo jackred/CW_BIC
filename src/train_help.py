@@ -11,6 +11,10 @@ from random import random
 from math import exp, tanh, cos, atan, asinh, sqrt, log, sin
 import matplotlib.pyplot as plt
 
+choice = {'linear': '1in_linear', 'cubic': '1in_cubic', 'tanh': '1in_tanh',
+          'sine': '1in_sine',  'complex': '2in_complex', 'xor': '2in_xor'}
+FOLDER = '../Data/'
+EXT = '.txt'
 
 MIN_BOUND = -5
 MAX_BOUND = 5
@@ -83,6 +87,13 @@ def mean_absolute_error(d, u):
     return (1 / len(d)) * sum(abs(d[i] - u[i])for i in range(len(d)))
 
 
+"""
+read help
+read_input
+name to name file
+"""
+
+
 def read_input(name):
     with open(name) as f:
         inputs = []
@@ -92,6 +103,39 @@ def read_input(name):
             inputs.append([x for x in tmp[:-1]])
             res_ex.append(tmp[-1])
     return inputs, res_ex
+
+
+def name_to_file(name):
+    return "%s%s%s" % (FOLDER, choice[name], EXT)
+
+
+"""
+register/load config
+"""
+
+
+def new_config(old_config, new_value):
+    i = 0
+    for k in old_config:
+        old_config[k] = new_value[i]
+        i += i
+    return old_config
+
+
+def read_activation(kwargs):
+    kwargs['activations'] = [globals()[i] for i in kwargs['activations']]
+
+
+def write_activation(kwargs):
+    kwargs['activations'] = [i.__name__ for i in kwargs['activations']]
+
+
+def args_to_pso_kwargs(args):
+    name = ["n_neighbor", "nb_h_layers",
+            "nb _neurons_layer", "min_bound", "max_bound", "cognitive_trust",
+            "social_trust", "inertia_start", "inertia_end", "velocity_max",
+            "activations"]
+    return dict(zip(name, args))
 
 
 """

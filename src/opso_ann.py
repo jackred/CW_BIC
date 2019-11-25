@@ -9,18 +9,18 @@
 
 
 from pso import PSO, minimise
-from test_ann import train_ANN_PSO
-from train_help import graph_opso, read_input
-from pso_json import get_boundary_config
-from ann_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND, Rosenbrock
+from pso_ann import train_ANN_PSO
+import train_help
+from pso_json import get_boundary_config, decode_args, encode_args
 import matplotlib.pyplot as plt
+from args import opso_args
 
 
 def scale_args(args, boundary):
     # Iterate through all arguments to scale them between specific born
     i = 0
     for key in boundary:
-        args[i] = scale(args[i], boundary[key][0], boundary[key][1])
+        args[i] = train_help.scale(args[i], boundary[key][0], boundary[key][1])
         i += 1
 
     # Round nb_h_layers and nb_neurons_layer to have int values
@@ -28,8 +28,10 @@ def scale_args(args, boundary):
     args[2] = round(args[2])
 
     # Get activation functions
-    i_activation = round(scale(args[-1], 0, len(ACTIVATIONS) - 1))
-    activations = [ACTIVATIONS[i_activation] for _ in range(args[1] + 1)]
+    i_activation = round(train_help.scale(args[-1], 0,
+                                          len(train_help.ACTIVATIONS) - 1))
+    activations = [train_help.ACTIVATIONS[i_activation]
+                   for _ in range(args[1] + 1)]
     return args[:-1] + [activations]
 
 
@@ -46,14 +48,15 @@ def fitness_mean(*args):
     return sum(res) / len(res), best_pso
 
 
-def train_PSO_PSO_ANN(inputs, res_ex, boundary, draw_graph=False):
+def train_PSO_PSO_ANN(inputs, res_ex, boundary, opso_arg, pso_arg,
+                      draw_graph=False):
     dim = 11
     opso = PSO(dim,
-               lambda param: fitness_mean(inputs, res_ex, 50, 25,
+               lambda param: fitness_mean(inputs, res_ex, *pso_arg.values(),
                                           *scale_args(param, boundary)),
-               max_iter=10, n_particle=8, n_neighbor=4,
-               inertia_start=0.5, inertia_end=0.5, comparator=minimise,
-               min_bound=MIN_BOUND, max_bound=MAX_BOUND)
+               **opso_arg, comparator=minimise,
+               min_bound=train_help.MIN_BOUND, max_bound=train_help.MAX_BOUND,
+               endl="11")
     print("\nRunning...\n")
     if draw_graph:
         opso.set_graph_config(inputs=inputs, res_ex=res_ex, opso=True)
@@ -62,13 +65,19 @@ def train_PSO_PSO_ANN(inputs, res_ex, boundary, draw_graph=False):
 
 
 def main():
-    name = '../Data/1in_cubic.txt'
-    inputs, res_ex = read_input(name)
+    args = opso_args().parse_args()
+    file_name = train_help.name_to_file(args.function)
+    inputs, res_ex = train_help.read_input(file_name)
+    opso_arg = decode_args('', 'opso', args.onc)
     real_time_graph = False
-    boundary = get_boundary_config()
-    pso = train_PSO_PSO_ANN(inputs, res_ex, boundary,
+    boundary = get_boundary_config(args.obc)
+    pso = train_PSO_PSO_ANN(inputs, res_ex, boundary, **opso_arg,
                             draw_graph=real_time_graph)
-    print(scale_args(pso.best_position, boundary))
+    dict_pso = {**train_help.args_to_pso_kwargs(
+        scale_args(pso.best_position, boundary)),
+                **opso_arg["pso_arg"]}
+    train_help.write_activation(dict_pso)
+    encode_args(args.function, 'pso', **dict_pso)
     if not real_time_graph:
         pso.set_graph_config(inputs=inputs, res_ex=res_ex, opso=True)
         pso.draw_graphs()

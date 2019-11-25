@@ -7,7 +7,9 @@
 # author: JackRed <jackred@tuta.io>,
 # Timothée Couble
 
-from ann_help import default_activation
+from args import ann_args
+import train_help
+from pso_json import decode_args
 
 
 class Connection:
@@ -130,3 +132,20 @@ class ANN:
                 j += nb_neurons_i
             res.append(tmp)
         return res
+
+
+if __name__ == '__main__':
+    args = ann_args().parse_args()
+    file_name = train_help.name_to_file(args.function)
+    inputs, res_ex = train_help.read_input(file_name)
+    ann_arg = decode_args(args.function, 'ann', args.anc)
+    train_help.read_activation(ann_arg)
+    params = ann_arg.pop('params')
+    ann = ANN(**ann_arg)
+    ann.update_params(params)
+    res = []
+    for i in range(len(inputs)):
+        res.append(ann.activation(inputs[i])[0])
+        print('expeted:', res_ex[i], 'found:',  res[i])
+    print('mean square error:',
+          train_help.mean_square_error(res_ex, res))

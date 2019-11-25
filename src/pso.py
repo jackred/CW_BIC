@@ -73,7 +73,7 @@ class Particle:
         self.evaluate()
         # best score/position encountered by the particle
         self.best_scores_iterations = self.score
-        self.best_position = self.position
+        self.best_position = deepcopy(self.position)
         # ---
         # neighbor and best neighbor
         # will be initialized by the swarm
@@ -124,7 +124,7 @@ class Particle:
     res: result of the function (for a graph)
     """
     def evaluate(self):
-        res = self.fitness_function(self.position)
+        res = self.fitness_function(deepcopy(self.position))
         if type(res) != tuple:
             self.score = res
         else:
@@ -235,8 +235,9 @@ class PSO:
                  cognitive_trust=COGNITIVE_TRUST, social_trust=SOCIAL_TRUST,
                  inertia_start=INERTIA_START, inertia_end=INERTIA_END,
                  velocity_max=VELOCITY_MAX,
-                 comparator=maximise, min_bound=-10, max_bound=10, endl='\r',
+                 comparator=maximise, min_bound=-10, max_bound=10, endl='',
                  version=2007):
+        self.endl = endl
         # ---
         # description of the search space
         # ---
@@ -280,7 +281,6 @@ class PSO:
         self.best_scores_iterations = []
         self.graph_config = {}
         self.best_res = []
-        self.endl = endl
 
     """
     generate a swarm of N particle
@@ -288,7 +288,8 @@ class PSO:
     itself, as well as the score evaluation
     The information initialisation is done by the swarm
     """
-    def generate_swarm(self, n_particle, n_neighbor, fn, version, c_trust, s_trust, v_max):
+    def generate_swarm(self, n_particle, n_neighbor, fn, version, c_trust,
+                       s_trust, v_max):
         # create the particle
         self.particles = [
             Particle(self.dimension, self.min_bound, self.max_bound, fn,
@@ -306,7 +307,6 @@ class PSO:
                    self.particles[(idx + i) % n_particle]
                 )
                 particle.update_best_neighbor()
-
             # particle.neighbors = [i for i in self.particles if i != particle]
 
     """
@@ -317,7 +317,7 @@ class PSO:
     def run(self):
         i = 0
         while i < self.max_iter and self.best_global_score > 0.001:
-            print('%d / %d' % (i+1, self.max_iter), end=self.endl)
+            print(self.endl + '%d / %d  ' % (i+1, self.max_iter), end="\r")
             inertia = self.inertia_start \
                 - ((self.inertia_start - self.inertia_end) / self.max_iter) * i
             best_actual_score = self.particles[0].score
@@ -358,7 +358,7 @@ class PSO:
             self.graph_config['opso_ax'] = plt.subplot(222)
 
     """
-    draw mean square error graph for pso and opso 
+    draw mean square error graph for pso and opso
     """
     @staticmethod
     def draw_graph_pso(pso, ax, name="PSO"):

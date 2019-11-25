@@ -22,11 +22,12 @@ def get_increment_name(name, ext):
 
 
 def encode_args(function, name='opso', **kwargs):
-    json_opso_args = json.dumps(kwargs)
+    json_opso_args = json.dumps(kwargs, indent=4)
     if not os.path.exists(NAME_DIR):
         os.makedirs(NAME_DIR)
     name = '%s/%s_%s' % (NAME_DIR, function, name)
     name = "%s_%d%s" % (name, get_increment_name(name, EXT), EXT)
+    print('config stored in ', name)
     with open(name, 'w') as f:
         f.write(json_opso_args)
 
@@ -38,8 +39,8 @@ def decode_args(function, name='opso', n=0):
     return json.loads(args)
 
 
-def get_boundary_config(filename='opso_default_boundary'):
-    name = "%s/%s%s" % (NAME_DIR, filename, EXT)
+def get_boundary_config(n=0, filename='opso_boundary'):
+    name = "%s/%s_%d%s" % (NAME_DIR, filename, n, EXT)
     with open(name, 'r') as f:
         args = f.read()
     return json.loads(args)
