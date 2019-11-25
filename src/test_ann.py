@@ -26,7 +26,10 @@ def train_ANN_PSO(inputs, res_ex, n_iter, n_particle, n_neighbor, nb_h_layers,
                   social_trust, inertia_start, inertia_end,
                   velocity_max, activation, draw_graph=False):
     nb_neurons = [len(inputs[0])]
-    nb_neurons.extend([nb_neurons_layer] * nb_h_layers)
+    if type(nb_neurons_layer) == list:
+        nb_neurons.extend(nb_neurons_layer)
+    else:
+        nb_neurons.extend([nb_neurons_layer] * nb_h_layers)
     nb_neurons.append(1)
     print(nb_neurons, n_neighbor, activation)
     ann = ANN(nb_neurons=nb_neurons, nb_layers=len(nb_neurons),

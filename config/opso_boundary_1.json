@@ -1,0 +1,11 @@
+{
+  "n_neighbor": [2, 16],
+  "nb_neurons_layer": [1, 5],
+  "min_bound": [-1, 0],
+  "max_bound": [0.000001, 1],
+  "cognitive_weight": [0, 8],
+  "social_weight": [0, 8],
+  "inertia_start": [-2, 2],
+  "inertia_end": [-2, 2],
+  "velocity_max": [0.000001, 50]
+}

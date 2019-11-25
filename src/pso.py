@@ -259,7 +259,6 @@ class PSO:
         # inertia to start and end. In between, linear change
         self.inertia_start = inertia_start
         self.inertia_end = inertia_end
-        print(n_neighbor, n_particle)
         if n_neighbor < 0:
             raise ValueError('The nb of neighbor should be greater than 0')
         elif n_neighbor > n_particle - 1:
