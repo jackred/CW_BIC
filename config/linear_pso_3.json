@@ -1,0 +1,20 @@
+{
+    "n_neighbor": 4.792409408115368,
+    "nb_h_layers": 3,
+    "nb _neurons_layer": 3,
+    "min_bound": -0.6912183025402397,
+    "max_bound": 0.7928756601745635,
+    "cognitive_trust": 0.3171176863958891,
+    "social_trust": 4.714036130771489,
+    "inertia_start": 1.280303286368151,
+    "inertia_end": -0.9861934080713657,
+    "velocity_max": 22.16169599116926,
+    "activations": [
+        "asinh",
+        "asinh",
+        "asinh",
+        "asinh"
+    ],
+    "max_iter": 150,
+    "n_particle": 20
+}

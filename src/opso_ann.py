@@ -69,7 +69,7 @@ def main():
     file_name = train_help.name_to_file(args.function)
     inputs, res_ex = train_help.read_input(file_name)
     opso_arg = decode_args('', 'opso', args.onc)
-    real_time_graph = False
+    real_time_graph = args.real_time
     boundary = get_boundary_config(args.obc)
     pso = train_PSO_PSO_ANN(inputs, res_ex, boundary, **opso_arg,
                             draw_graph=real_time_graph)

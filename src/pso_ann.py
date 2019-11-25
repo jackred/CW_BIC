@@ -62,7 +62,7 @@ def main():
     args = pso_args().parse_args()
     file_name = train_help.name_to_file(args.function)
     inputs, res_ex = train_help.read_input(file_name)
-    real_time_graph = False
+    real_time_graph = args.real_time
     pso_arg = decode_args(args.function, 'pso', args.pnc)
     activations = deepcopy(pso_arg['activations'])
     train_help.read_activation(pso_arg)
@@ -71,9 +71,10 @@ def main():
     print(pso_arg)
     nb_neurons = set_nb_neurons(len(inputs[0]), pso_arg['nb_neurons_layer'],
                                 pso_arg['nb_h_layers'])
-    encode_args(args.function, 'ann', params=pso.best_position,
-                nb_neurons=nb_neurons, nb_layers=len(nb_neurons),
-                activations=activations)
+    if args.store:
+        encode_args(args.function, 'ann', params=pso.best_position,
+                    nb_neurons=nb_neurons, nb_layers=len(nb_neurons),
+                    activations=activations)
     if not real_time_graph:
         pso.set_graph_config(inputs=inputs, res_ex=res_ex)
         pso.draw_graphs()

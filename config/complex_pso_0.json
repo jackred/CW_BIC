@@ -9,7 +9,7 @@
   "inertia_start": -1,
   "inertia_end": 1,
   "velocity_max": 50,
-  "activations": ["heaviside", "sin", "sin"],
+  "activations": ["sin", "softsign", "sin"],
   "max_iter": 150,
   "n_particle": 20
 }

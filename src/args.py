@@ -30,6 +30,10 @@ def opso_args():
     argp.add_argument('-obc', '--opso-boundary-config', dest='obc',
                       default=0, type=int,
                       help='number of the config file for opso')
+    argp.add_argument('-r', dest='real_time',
+                      default=False,
+                      action="store_true",
+                      help='real time graph')
     return argp
 
 
@@ -38,6 +42,14 @@ def pso_args():
     argp.add_argument('-pnc', '--pso-number-config', dest='pnc',
                       default=0, type=int,
                       help='number of the config file for pso')
+    argp.add_argument('-b', dest='store',
+                      default=False,
+                      action="store_true",
+                      help='store config')
+    argp.add_argument('-r', dest='real_time',
+                      default=False,
+                      action="store_true",
+                      help='real time graph')
     return argp
 
 

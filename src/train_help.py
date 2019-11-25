@@ -183,3 +183,22 @@ class Rosenbrock:
             int_sum = int_sum + new
         y = int_sum
         return y
+
+
+class Sphere:
+    def __init__(self, dimension=3):
+        self.max_bound = 5.12
+        self.min_bound = -5.12
+        self.dimension = dimension
+
+    def generate_random(self):
+        return [random.uniform(self.min_bound, self.max_bound)
+                for _ in range(self.dimension)]
+
+    def evaluate(self, xx):
+        d = len(xx)
+        int_sum = 0
+        for i in range(d):
+            xi = xx[i]
+            int_sum += xi ** 2
+        return int_sum

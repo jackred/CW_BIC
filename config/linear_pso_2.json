@@ -1,0 +1,15 @@
+{
+  "n_neighbor": 2,
+  "nb_h_layers": 1,
+  "nb_neurons_layer": 3,
+  "min_bound": -3.9723440943700545,
+  "max_bound": 5.01036664422292,
+  "cognitive_trust": 3.3477672442190167,
+  "social_trust": 0.35554821946811116,
+  "inertia_start": 0.9959869753109267,
+  "inertia_end": -0.14335746824556783,
+  "velocity_max": 32.72446913826033,
+  "activations": ["tanh", "tanh", "tanh", "tanh"],
+  "max_iter": 200,
+  "n_particle": 20
+}

@@ -28,10 +28,12 @@ def train_PSO(function, comparator,  n_iter, n_particle, n_neighbor, min_bound,
 
 
 def main():
-    rosenbrock = train_help.Rosenbrock(12)
+    rosenbrock = train_help.Rosenbrock(7)
+    sphere = train_help.Sphere(20)
     res = []
     for i in range(30):
-        pso = train_PSO(rosenbrock, minimise, 2000, 20, 2, -5, 10,
+        print(i)
+        pso = train_PSO(sphere, minimise, 200, 20, 2, -5, 10,
                         2, 2, 0.8, 0.4, 20)
         res.append(pso.best_global_score)
     res.sort()

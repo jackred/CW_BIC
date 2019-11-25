@@ -1,0 +1,15 @@
+{
+  "n_neighbor": 2,
+  "nb_h_layers": 1,
+  "nb_neurons_layer": 4,
+  "min_bound": -10,
+  "max_bound": 10.0,
+  "cognitive_trust": 1.0,
+  "social_trust": 3.5,
+  "inertia_start": -1.0,
+  "inertia_end": 0.8444690264010918,
+  "velocity_max": 17.7374856746678,
+  "activations": ["sigmoid", "sigmoid"],
+  "max_iter": 150,
+  "n_particle": 20
+}

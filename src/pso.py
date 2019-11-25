@@ -316,7 +316,7 @@ class PSO:
     """
     def run(self):
         i = 0
-        while i < self.max_iter and self.best_global_score > 0.001:
+        while i < self.max_iter and self.best_global_score > 0.00001:
             print(self.endl + '%d / %d  ' % (i+1, self.max_iter), end="\r")
             inertia = self.inertia_start \
                 - ((self.inertia_start - self.inertia_end) / self.max_iter) * i

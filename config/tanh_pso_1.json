@@ -1,0 +1,15 @@
+{
+  "n_neighbor": 2,
+  "nb_h_layers": 1,
+  "nb_neurons_layer": 3,
+  "min_bound": -7.176582343826539,
+  "max_bound": 3.0666915574121836,
+  "cognitive_trust": 0.0,
+  "social_trust": 2.2625112213772844,
+  "inertia_start": -0.26381961890844063,
+  "inertia_end": 1.0,
+  "velocity_max": 50.0,
+  "activations": ["atan", "atan"],
+  "max_iter": 300,
+  "n_particle": 20
+}
