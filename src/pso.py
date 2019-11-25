@@ -16,6 +16,7 @@ INERTIA_END = 0.4
 COGNITIVE_TRUST = 2
 SOCIAL_TRUST = 2
 VELOCITY_MAX = 20
+CONVERGENCE_DELTA = 0.0001
 
 
 def minimise(a, b):
@@ -316,7 +317,7 @@ class PSO:
     """
     def run(self):
         i = 0
-        while i < self.max_iter and self.best_global_score > 0.00001:
+        while i < self.max_iter and self.best_global_score > CONVERGENCE_DELTA:
             print(self.endl + '%d / %d  ' % (i+1, self.max_iter), end="\r")
             inertia = self.inertia_start \
                 - ((self.inertia_start - self.inertia_end) / self.max_iter) * i
@@ -375,7 +376,7 @@ class PSO:
     def draw_graph_ann(self, res):
         self.graph_config['ann_ax'].clear()
         plt.subplot(self.graph_config['ann_ax'])
-        plt.title("Target output and the ANN output comparaison")
+        plt.title("Desired output and the ANN output comparison")
         plt.plot(self.graph_config['inputs'], res, label='Result')
         plt.plot(self.graph_config['inputs'], self.graph_config['res_ex'],
                  linestyle=':', label='Target')
