@@ -12,7 +12,7 @@ from pso import PSO, minimise
 from pso_ann import train_ANN_PSO
 from train_help import graph_opso, read_input
 from pso_json import decode_args
-from ann_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND, Rosenbrock
+from train_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND, Rosenbrock
 import matplotlib.pyplot as plt
 
 N_H_LAYER = 3

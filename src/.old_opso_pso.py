@@ -11,7 +11,7 @@
 from pso import PSO, minimise
 from test_pso import train_PSO
 from train_help import graph_opso, read_input
-from ann_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND, Rosenbrock
+from train_help import ACTIVATIONS, scale, MIN_BOUND, MAX_BOUND, Rosenbrock
 
 
 def train_mean_PSO(*args):

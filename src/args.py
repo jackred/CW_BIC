@@ -9,8 +9,6 @@
 
 import argparse
 
-# TODO: config file for boundary
-
 
 def parse_args(name):
     argp = argparse.ArgumentParser(name)
