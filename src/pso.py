@@ -300,7 +300,7 @@ class PSO:
         # determine the best neighbor
         for particle in self.particles:
             idx = self.particles.index(particle)
-            for i in range(1, int(n_neighbor / 2) + 1):
+            for i in range(1, int((n_neighbor + 1)/ 2) + 1):
                 particle.neighbors.append(self.particles[idx - i])
                 particle.neighbors.append(
                    self.particles[(idx + i) % n_particle]
