@@ -9,7 +9,7 @@
   "inertia_start": -0.12557932265088811,
   "inertia_end": 0.3626916889712726,
   "velocity_max": 50,
-  "activations": ["tanh", "tanh", "tanh", "tanh"],
-  "max_iter": 200,
+  "activations": ["tanh", "tanh", "tanh", "tanh", "tanh", "tanh"],
+  "max_iter": 300,
   "n_particle": 20
 }

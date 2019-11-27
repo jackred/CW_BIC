@@ -1,6 +1,6 @@
 {"opso_arg":
  {
-   "max_iter": 20,
+   "max_iter": 10,
    "n_particle": 30,
    "n_neighbor": 2,
    "cognitive_trust": 2,
@@ -10,7 +10,7 @@
    "velocity_max": 20
  },
  "pso_arg":{
-   "max_iter": 150,
+   "max_iter": 100,
    "n_particle": 20
  }
 }
